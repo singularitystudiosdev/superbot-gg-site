@@ -211,7 +211,7 @@
   // grins while a request runs, and makes a little 'o' face on an error.
   // On a fresh chat he stands in the log instead (the hello state), saying
   // hi in the foreground until the first answer lands.
-  const { Mascot, mountGreeting } = await import('assets/mascot.js');
+  const { Mascot, mountGreeting } = await import('./assets/mascot.js');
   // prefers-reduced-motion: the mascot is decoration — a user who asked the
   // OS for less motion gets the static face, not the animation loop.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

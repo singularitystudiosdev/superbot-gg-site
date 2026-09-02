@@ -24,7 +24,7 @@
   // Same cache-buster the edge stamped on this script tag (app.ts rewrites
   // assets/chat.js?v=<mtimeMs>); forwarded so md.js busts in lockstep.
   const SBV = document.currentScript ? new URL(document.currentScript.src).searchParams.get('v') : null;
-  const { renderMd } = await import(`assets/md.js${SBV ? `?v=${SBV}` : ''}`);
+  const { renderMd } = await import(`./assets/md.js${SBV ? `?v=${SBV}` : ''}`);
 
   // Fallback id must satisfy the edge's session regex (^[\w-]{1,59}$) — a bare
   // Math.random() decimal would be silently dropped there, orphaning memory.

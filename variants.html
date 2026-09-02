@@ -84,7 +84,7 @@
   <footer><a href="index.html">← back to designs</a> · tell us which one and it becomes the mascot everywhere</footer>
 
 <script type="module">
-  import { Mascot } from 'assets/mascot.js?v=6';
+  import { Mascot } from './assets/mascot.js?v=6';
   for (const el of document.querySelectorAll('.mascot')) {
     const small = el.closest('.grid')?.classList.contains('small');
     new Mascot(el, {

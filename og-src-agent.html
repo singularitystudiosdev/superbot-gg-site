@@ -89,7 +89,7 @@
 <script type="module">
   // one static frame of the real character, mid-keystroke: eyes on the card,
   // right paw down on the lit key. fallback: the old card's baked ASCII face.
-  import { mascotFrame } from 'assets/mascot.js?v=11';
+  import { mascotFrame } from './assets/mascot.js?v=11';
   const el = document.getElementById('face');
   try {
     const rows = mascotFrame(44, 22, { eyeL: 'open', eyeR: 'open', mouth: 'smile', pupil: { x: 0.8, y: -0.3 }, paws: { l: 0, r: 1 } });
