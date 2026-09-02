@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <!-- halftone dash texture, like a textmode raster -->
+    <pattern id="ht" width="7" height="6" patternUnits="userSpaceOnUse">
+      <rect x="0" y="2" width="4.6" height="1.9" rx="0.9" fill="#e8e4d9"/>
+    </pattern>
+    <pattern id="htDim" width="7" height="6" patternUnits="userSpaceOnUse">
+      <rect x="0" y="2" width="3.2" height="1.6" rx="0.8" fill="#6a675c"/>
+    </pattern>
+  </defs>
+
+  <!-- badge -->
+  <rect x="4" y="4" width="248" height="248" rx="56" fill="#0c0d10"/>
+  <rect x="14" y="14" width="228" height="228" rx="48" fill="none" stroke="url(#htDim)" stroke-width="3"/>
+
+  <!-- horn-ears -->
+  <path d="M64 96 Q50 58 86 64 Q98 74 84 98 Z" fill="url(#ht)"/>
+  <path d="M192 96 Q206 58 170 64 Q158 74 172 98 Z" fill="url(#ht)"/>
+
+  <!-- head -->
+  <rect x="46" y="80" width="164" height="122" rx="38" fill="url(#ht)"/>
+
+  <!-- face (cut in badge color) -->
+  <ellipse cx="97" cy="132" rx="14" ry="16" fill="#0c0d10"/>
+  <rect x="141" y="126" width="36" height="10" rx="5" fill="#0c0d10"/>
+  <path d="M108 164 Q128 182 148 164" fill="none" stroke="#0c0d10" stroke-width="9" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,99 @@
+<!doctype html>
+<!-- source card for og.png: screenshot at 1200x630 (node .tmp/og-render.mjs).
+     same convention as og-src.html: one static 1200x630 composition, the
+     hero's own pieces — headline left, one resolved incident card over the
+     mascot at its keyboard right. the mascot frame is drawn by mascot.js at
+     load; everything else is plain HTML/CSS. -->
+<html><head><meta charset="utf-8"/><style>
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    background: radial-gradient(900px 700px at 26% 38%, #14161c, #050505 80%);
+    color: #e8e4d9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    display: flex; align-items: center; gap: 64px; padding: 0 72px 0 64px;
+  }
+  .txt { flex: 1; min-width: 0; }
+  .word { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 22px; }
+  .word span { color: #7cb389; }
+  .txt h1 { font-size: 58px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.06; }
+  .txt h1 span { color: #7cb389; }
+  .txt p.tag { font-size: 21px; line-height: 1.45; color: #8b8778; margin-top: 20px; }
+  .txt p.tag b { color: #e8e4d9; font-weight: 500; }
+  .txt p.install { font-size: 19px; color: #7cb389; margin-top: 40px; background: #14161c; border: 1px solid #24262e; border-radius: 10px; padding: 13px 20px; display: inline-block; }
+  .txt p.install b { color: #e8e4d9; font-weight: 400; }
+
+  /* the mini stage: the hero's own chrome, one beat of the loop frozen */
+  .stage {
+    position: relative; width: 470px; height: 470px; flex: none;
+    background: #0a0b0d; border: 1px solid #232323; border-radius: 14px;
+  }
+  .bar { position: absolute; top: 0; left: 0; right: 0; height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 14px; border-bottom: 1px solid #232323; font-size: 13px; color: #8b8778; }
+  .bar i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #232323; background: #161616; }
+  .bar em { width: 9px; height: 9px; border-radius: 50%; background: #7cb389; margin-left: auto; }
+  .bar span { margin-left: 4px; }
+  .card {
+    position: absolute; right: 22px; top: 58px; width: 300px;
+    background: #141517; border: 1px solid #232323; border-radius: 10px; overflow: hidden;
+    font-size: 13.5px; line-height: 1.45;
+  }
+  .card .cbar { display: flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-bottom: 1px solid #232323; color: #8b8778; font-size: 12.5px; }
+  .card .cbar i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #232323; background: #161616; }
+  .card .body { padding: 11px 13px; display: grid; gap: 7px; }
+  .card .problem { color: #8b8778; text-decoration: line-through; display: grid; grid-template-columns: 14px 1fr; gap: 7px; }
+  .card .problem::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin: 6px 4px 0 0; }
+  .card .fix { color: #7cb389; display: grid; grid-template-columns: 14px 1fr; gap: 7px; }
+  .card .fix::before { content: '✓'; font-weight: 700; }
+  .card .fix b { font-weight: 700; }
+  .card .foot { padding: 0 13px 10px; color: #8b8778; font-size: 12px; }
+  .card .fix .caret { border-left: 8px solid #7cb389; margin-left: 2px; animation: none; }
+
+  pre.face { position: absolute; left: 26px; bottom: 40px; font: 9.5px/9.5px ui-monospace, Menlo, monospace; color: #e8e4d9; }
+  .keys { position: absolute; left: 105px; bottom: 24px; display: grid; gap: 4px; }
+  .keys .row { display: flex; gap: 4px; }
+  .keys .row + .row { padding-left: 13px; }
+  .keys i { display: block; width: 22px; height: 13px; border-radius: 3px; border: 1px solid #232323; background: #161616; }
+  .keys i.hit { background: #7cb389; border-color: #7cb389; box-shadow: 0 0 10px rgba(124,179,137,.6); }
+  svg.beam { position: absolute; inset: 0; width: 100%; height: 100%; }
+  svg.beam path { fill: none; stroke: #7cb389; stroke-linecap: round; }
+  svg.beam .line { stroke-width: 2; opacity: .5; stroke-dasharray: 7 7; }
+  svg.beam .dot { fill: #7cb389; opacity: .95; }
+</style></head>
+<body>
+  <div class="txt">
+    <p class="word">superbot<span>.gg</span></p>
+    <h1>the agent that helps your agents<span>.</span></h1>
+    <p class="tag"><b>runs on your machine 24/7.</b> your AI apps on the subscriptions you already pay for, kept fast, kept tidy, and the annoying stuff fixed before you see it.</p>
+    <p class="install"><b>paste</b> https://superbot.gg <b>into any LLM</b></p>
+  </div>
+  <div class="stage">
+    <div class="bar"><i></i><i></i><i></i><span>superbot · running · 3 apps connected</span><em></em></div>
+    <svg class="beam" viewBox="0 0 470 470" aria-hidden="true">
+      <path class="line" d="M 235 405 Q 300 320 322 200"/>
+      <circle class="dot" cx="300" cy="320" r="3.5"/>
+      <circle class="dot" cx="312" cy="262" r="3.5"/>
+    </svg>
+    <div class="card">
+      <div class="cbar"><i></i><i></i><i></i><span>claude code · billing</span></div>
+      <div class="body">
+        <div class="problem"><span>$4.12 at pay-per-use prices</span></div>
+        <div class="fix"><span><b>$0.00</b> · your subscription covered it</span></div>
+      </div>
+      <div class="foot">fixed by superbot · 0.3s</div>
+    </div>
+    <pre class="face" id="face"></pre>
+    <div class="keys" aria-hidden="true">
+      <span class="row"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="row"><i></i><i class="hit"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+  </div>
+<script type="module">
+  // one static frame of the real character, mid-keystroke: eyes on the card,
+  // right paw down on the lit key. fallback: the old card's baked ASCII face.
+  import { mascotFrame } from 'assets/mascot.js?v=11';
+  const el = document.getElementById('face');
+  try {
+    const rows = mascotFrame(44, 22, { eyeL: 'open', eyeR: 'open', mouth: 'smile', pupil: { x: 0.8, y: -0.3 }, paws: { l: 0, r: 1 } });
+    el.textContent = rows.join('\n');
+  } catch { el.textContent = ''; }
+</script>
+</body></html>

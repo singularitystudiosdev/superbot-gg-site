@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- source card for og-time.png: screenshot at 1200x630 (node .tmp/og-render.mjs).
+     the time-traveler conceit stays — a greeting to whoever digs up the first
+     capture — in the refreshed composition: the real mascot frame drawn by
+     mascot.js, the amber greeting, and the resident-agent stamp. -->
+<html><head><meta charset="utf-8"/><style>
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    background: radial-gradient(900px 700px at 30% 40%, #14161c, #050505 80%);
+    color: #e8e4d9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px;
+  }
+  pre.face { font: 11px/11px ui-monospace, Menlo, monospace; color: #e8e4d9; }
+  h1 { font-size: 58px; font-weight: 700; letter-spacing: -0.03em; }
+  h1 span { color: #d4a054; }
+  p.stamp { font-size: 22px; color: #8b8778; letter-spacing: 0.14em; text-transform: uppercase; }
+  p.stamp b { color: #7cb389; font-weight: 500; letter-spacing: 0.1em; text-transform: none; }
+</style></head>
+<body>
+  <pre class="face" id="face"></pre>
+  <h1>Greetings, <span>Time Traveler!</span></h1>
+  <p class="stamp">superbot.gg · <b>the agent that helps your agents</b></p>
+<script type="module">
+  // one static frame of the real character, waving hello: happy eyes, a grin.
+  import { mascotFrame } from 'assets/mascot.js?v=11';
+  const el = document.getElementById('face');
+  try {
+    const rows = mascotFrame(56, 28, { eyeL: 'happy', eyeR: 'open', mouth: 'grin', bob: 0 });
+    el.textContent = rows.join('\n');
+  } catch { el.textContent = ''; }
+</script>
+</body></html>

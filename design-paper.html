@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>superbot.gg — design C: paper terminal</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<style>
+  :root { --paper: #f4f1e8; --ink: #1c1b17; --dim: #6e6a5e; --rule: #d8d3c4; --red: #c0392b; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--paper); color: var(--ink); min-height: 100vh;
+    font: 16px/1.65 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    display: flex; justify-content: center; padding: 44px 22px 90px;
+  }
+  .sheet { width: 100%; max-width: 720px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px double var(--ink); padding-bottom: 14px; margin-bottom: 8px; }
+  .masthead { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+  .masthead .gg { color: var(--red); }
+  .issue { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .kicker { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--red); text-transform: uppercase; letter-spacing: 0.16em; margin: 26px 0 8px; }
+
+  .lead { display: grid; grid-template-columns: auto 1fr; gap: 34px; align-items: center; margin-bottom: 8px; }
+  @media (max-width: 620px) { .lead { grid-template-columns: 1fr; } }
+  .plate { border: 1px solid var(--ink); padding: 18px; background: #fff; box-shadow: 5px 5px 0 var(--rule); }
+  .mascot { font: 9.5px/9.5px ui-monospace, Menlo, monospace; color: var(--ink); user-select: none; }
+  .caption { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--dim); margin-top: 10px; border-top: 1px solid var(--rule); padding-top: 6px; }
+
+  h1 { font-size: 2.5rem; line-height: 1.12; font-weight: 600; letter-spacing: -0.01em; }
+  h1 em { font-style: italic; color: var(--red); }
+  .dek { font-size: 1.1rem; color: var(--dim); margin-top: 14px; }
+
+  .install { margin: 34px 0; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); padding: 16px 20px; font-family: ui-monospace, Menlo, monospace; font-size: 14px; display: flex; justify-content: space-between; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .install b { color: #9dd8a8; font-weight: 400; }
+  .install button { font: inherit; background: var(--paper); color: var(--ink); border: 0; padding: 6px 14px; cursor: pointer; transition: transform 0.12s, background 0.12s; }
+  .install button:hover { background: #fff; }
+  .install button:active { transform: scale(0.94); }
+  .install button.copied { background: #9dd8a8; animation: pop 0.4s ease; }
+  @keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.14); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+
+  .rules { columns: 2; gap: 34px; margin: 30px 0; }
+  @media (max-width: 620px) { .rules { columns: 1; } }
+  .rules p { break-inside: avoid; margin-bottom: 16px; font-size: 15px; }
+  .rules p b { font-family: ui-monospace, Menlo, monospace; font-size: 13.5px; background: #fff; border: 1px solid var(--rule); padding: 1px 6px; }
+  .rules p span { color: var(--dim); }
+
+  table { width: 100%; border-collapse: collapse; font-family: ui-monospace, Menlo, monospace; font-size: 13px; margin: 12px 0 40px; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); border-bottom: 1px solid var(--ink); padding: 8px 10px 6px; }
+  td { border-bottom: 1px solid var(--rule); padding: 9px 10px; }
+  td:first-child { color: var(--red); }
+  footer { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--dim); border-top: 3px double var(--ink); padding-top: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  footer a { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div class="masthead">superbot<span class="gg">.gg</span></div>
+    <div class="issue">vol. 0 · no. 1 · self-hosted</div>
+  </header>
+
+  <div class="kicker">the resident daemon, domesticated</div>
+  <div class="lead">
+    <div class="plate">
+      <pre class="mascot" id="mascot"></pre>
+      <div class="caption">fig. 1 — the superbot, at rest. click to provoke.</div>
+    </div>
+    <div>
+      <h1>One URL, and the <em>little bot</em> handles the rest.</h1>
+      <p class="dek">Paste superbot.gg into any LLM. It installs a remote MCP with three tools that never change — and quietly learns to do whatever your other tools cannot.</p>
+    </div>
+  </div>
+
+  <div class="install">
+    <span><b>$</b> paste → <b>https://superbot.gg</b> → done</span>
+    <button onclick="copyUrl(this)">copy url</button>
+  </div>
+
+  <div class="kicker">the arrangement</div>
+  <div class="rules">
+    <p><b>search_tools</b> — Describe the task. <span>Matching adapters come back with a plan; an empty result is filed as a miss, and misses are how it grows.</span></p>
+    <p><b>get_tool_details</b> — The fine print on any adapter. <span>Schemas, auth state, a worked example.</span></p>
+    <p><b>omni</b> — The catch-all. <span>Always legal to call, even for the impossible. Especially the impossible: that is a commission.</span></p>
+    <p><span>The tool list is frozen on purpose — your host's prompt cache survives, dumb hosts still work, and the dynamism lives behind omni, where it belongs.</span></p>
+  </div>
+
+  <div class="kicker">ledger</div>
+  <table>
+    <tr><th>path</th><th>serves</th></tr>
+    <tr><td>/</td><td>this page for humans, llms.txt for agents</td></tr>
+    <tr><td>/mcp</td><td>remote MCP, streamable HTTP, three tools</td></tr>
+    <tr><td>/advise</td><td>markdown advice for MCP-less hosts</td></tr>
+    <tr><td>/install/*</td><td>per-harness install notes</td></tr>
+  </table>
+
+  <footer>
+    <span>© superbot.gg — a very polite bot</span>
+    <span><a href="/schematic.html">system map</a> · <a href="index.html">other designs</a></span>
+  </footer>
+</div>
+<script type="module">
+  import { Mascot } from 'assets/mascot.js?v=6';
+  new Mascot(document.getElementById('mascot'), { variant: 'classic', cols: 42, rows: 21, emojis: ['✨','☕','✒️','😹','🤖'] });
+</script>
+</body>
+</html>

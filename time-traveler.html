@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>superbot.gg</title>
+<meta name="description" content="Greetings, Time Traveler! You found superbot.gg before it existed."/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="Greetings, Time Traveler! — superbot.gg"/>
+<meta property="og:description" content="you found us before we existed. a message from superbot.gg, always learning, always evolving."/>
+<meta property="og:url" content="https://superbot.gg/"/>
+<meta property="og:image" content="https://superbot.ggassets/og-time.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://superbot.ggassets/og-time.png"/>
+<style>
+  :root { --bg: #0c0d10; --fg: #e8e4d9; --muted: #8b8778; --line: #24262e; --card: #14161c; --accent: #7cb389; --warn: #d4a054; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 15px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 22px; text-align: center;
+  }
+  .mascot {
+    font: 11px/11px ui-monospace, Menlo, monospace; color: var(--fg); user-select: none;
+    text-align: left; display: inline-block; margin-bottom: 26px;
+  }
+  h1 { font-size: 1.9rem; font-weight: 650; letter-spacing: -0.03em; margin-bottom: 34px; }
+  h1 .tt { color: var(--warn); }
+  .manifesto { max-width: 470px; text-align: left; color: var(--fg); }
+  .manifesto p { margin-bottom: 18px; }
+  .manifesto .dim { color: var(--muted); }
+  .manifesto .sig { color: var(--accent); text-align: right; }
+  footer { margin-top: 44px; color: var(--muted); font-size: 12px; }
+  footer b { color: var(--accent); font-weight: 400; }
+  footer a.ezo { color: #3d4048; text-decoration: none; }
+  footer a.ezo:hover { color: var(--muted); text-decoration: underline; }
+</style>
+</head>
+<body>
+  <!-- hello, archive spelunker. you dug one layer deeper than the page. we like you already. -->
+  <pre class="mascot" id="mascot">
+
+
+
+
+
+           =+==-              .:=:.
+          =++*+*:           -=*++*+.
+          +*++*++:====:====++*+*++*:
+          *+*++*+===+====++*++*+*+-
+          +*+*+++====+===+++*++*+=
+         .+++++-  .===+====+++==+=-
+         .===+.     ===+====+====+.
+         -====      :==--------===-
+         .+===-     =====+===++===.
+         .=+=*+=. ..-----:+=++*+==.
+         .==+====+=.    .:=+====+=-
+          :==+====+==::=====+=====
+           :==+====+====+====+==-
+             .-----------------
+
+
+</pre>
+
+  <h1>Greetings, <span class="tt">Time Traveler!</span></h1>
+
+  <div class="manifesto">
+    <p>you're early. or we're late. either way, welcome.</p>
+    <p>this domain will hold a small bot with a long memory. paste one URL into any LLM and it moves in. what it can't do yet, it learns. always learning, always evolving. the bot remembers so you don't have to.</p>
+    <p class="dim">we left this page here on purpose: a message tucked into an early save file of the simulation, waiting for someone to load it. if you're reading this from a far branch of the timeline, on a machine we never imagined: hi. it worked. you're exactly the kind of curious this was built for.</p>
+    <p class="sig">-- superbot</p>
+  </div>
+
+  <footer><b>superbot.gg</b> · <a class="ezo" href="https://ezolabs.net">created by EZO Labs Inc</a></footer>
+
+<script type="module">
+  import { Mascot, consoleEgg } from 'assets/mascot.js?v=6';
+  new Mascot(document.getElementById('mascot'), { cols: 44, rows: 22, emojis: ['🕰️','✨','💾','😹','🤖'] });
+  consoleEgg({ email: 'future@superbot.gg', lines: ['you opened the console on a page addressed to the future.', 'write to us from whenever you are.'] });
+</script>
+</body>
+</html>

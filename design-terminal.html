@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>superbot.gg — design A: terminal</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<style>
+  :root {
+    --bg: #0c0d10; --fg: #e8e4d9; --muted: #8b8778; --line: #24262e;
+    --card: #14161c; --accent: #7cb389; --warn: #d4a054;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 80px;
+  }
+  .frame { width: 100%; max-width: 780px; }
+  nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  nav .brand { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  nav .brand img { width: 26px; height: 26px; }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 22px; font-size: 13px; }
+  nav a:hover { color: var(--accent); }
+
+  .hero { text-align: center; }
+  .badge {
+    display: inline-block; background: var(--card); border: 1px solid var(--line);
+    border-radius: 28px; padding: 26px 30px; margin-bottom: 28px;
+    box-shadow: 0 0 80px rgba(124, 179, 137, 0.06) inset;
+  }
+  .mascot {
+    font: 11px/11px ui-monospace, Menlo, monospace; letter-spacing: 0;
+    color: var(--fg); user-select: none; text-align: left; display: inline-block;
+  }
+  h1 { font-size: 2rem; font-weight: 650; letter-spacing: -0.03em; }
+  h1 .gg { color: var(--accent); }
+  .tag { color: var(--muted); margin: 10px 0 30px; }
+  .cursor::after { content: "▌"; color: var(--accent); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .paste {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 18px; display: flex; gap: 14px; align-items: center;
+    max-width: 520px; margin: 0 auto 14px; text-align: left;
+  }
+  .paste .p { color: var(--accent); }
+  .paste code { flex: 1; overflow-x: auto; white-space: nowrap; }
+  .paste button {
+    background: var(--accent); color: var(--bg); border: 0; border-radius: 7px;
+    font: inherit; font-weight: 600; padding: 6px 14px; cursor: pointer;
+    transition: transform 0.12s, background 0.12s, box-shadow 0.12s;
+  }
+  .paste button:hover { filter: brightness(1.15); }
+  .paste button:active { transform: scale(0.94); }
+  .paste button.copied { background: #a8e6b6; animation: pop 0.4s ease; box-shadow: 0 0 0 4px rgba(124, 179, 137, 0.25); }
+  @keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.14); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+  .hint { color: var(--muted); font-size: 12.5px; margin-bottom: 56px; }
+
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: left; margin-bottom: 56px; }
+  @media (max-width: 640px) { .cols { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .card h3 { color: var(--accent); font-size: 14px; margin-bottom: 8px; font-weight: 600; }
+  .card p { color: var(--muted); font-size: 13px; }
+
+  .how { text-align: left; border-top: 1px solid var(--line); padding-top: 34px; margin-bottom: 40px; }
+  .how h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 18px; }
+  .how ol { list-style: none; counter-reset: n; }
+  .how li { counter-increment: n; padding: 10px 0; border-bottom: 1px dashed var(--line); color: var(--fg); }
+  .how li::before { content: "0" counter(n) " "; color: var(--warn); margin-right: 12px; }
+  .how li span { color: var(--muted); }
+  footer { color: var(--muted); font-size: 12px; text-align: center; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="frame">
+  <nav>
+    <div class="brand"><img src="assets/logo.svg" alt=""/> superbot<span style="color:var(--accent)">.gg</span></div>
+    <div>
+      <a href="/schematic.html">system map</a>
+      <a href="/llms.txt">llms.txt</a>
+      <a href="index.html">designs</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="badge"><pre class="mascot" id="mascot"></pre></div>
+    <h1>superbot<span class="gg">.gg</span></h1>
+    <p class="tag">one URL. every tool. your cute lil superbot<span class="cursor"></span></p>
+
+    <div class="paste">
+      <span class="p">$</span>
+      <code>paste https://superbot.gg into any LLM</code>
+      <button onclick="copyUrl(this)">copy</button>
+    </div>
+    <p class="hint">it installs itself. three tools, forever. everything else it learns.</p>
+
+    <div class="cols">
+      <div class="card"><h3>search_tools</h3><p>describe the task, get matching adapters, a plan, and a session. zero matches become a logged miss.</p></div>
+      <div class="card"><h3>get_tool_details</h3><p>inspect one adapter: schemas, auth state, an example call.</p></div>
+      <div class="card"><h3>omni</h3><p>catch-all execute. always legal. a miss today is a new adapter tomorrow.</p></div>
+    </div>
+
+    <div class="how">
+      <h2>how it works</h2>
+      <ol>
+        <li>agent fetches superbot.gg <span>— llms.txt tells it how to install the MCP</span></li>
+        <li>host keeps the remote MCP <span>— three frozen tools, prompt cache intact</span></li>
+        <li>you ask for something new <span>— the miss is logged, an adapter is synthesized</span></li>
+        <li>next time it just works <span>— the bot remembers</span></li>
+      </ol>
+    </div>
+
+    <footer>superbot.gg · remote MCP at <a href="/mcp">/mcp</a> · <a href="index.html">/advise</a> · self-hosted, no tracking beyond the miss log</footer>
+  </div>
+</div>
+<script type="module">
+  import { Mascot } from 'assets/mascot.js?v=6';
+  new Mascot(document.getElementById('mascot'), { variant: 'classic', cols: 44, rows: 22 });
+</script>
+</body>
+</html>

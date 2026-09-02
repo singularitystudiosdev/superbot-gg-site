@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>superbot.gg</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<meta name="description" content="paste one URL into any LLM and superbot moves in. ask for something it can't do yet, and it learns."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="superbot.gg"/>
+<meta property="og:title" content="superbot.gg — always learning, always evolving"/>
+<meta property="og:description" content="paste one URL into any LLM and superbot moves in. ask for something it can't do yet, and it learns."/>
+<meta property="og:url" content="https://superbot.gg/"/>
+<meta property="og:image" content="https://superbot.ggassets/og.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://superbot.ggassets/og.png"/>
+<style>
+  :root { --bg: #0c0d10; --fg: #e8e4d9; --muted: #8b8778; --line: #24262e; --card: #14161c; --accent: #7cb389; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .hero { text-align: center; max-width: 620px; width: 100%; }
+  .badge {
+    display: inline-block; background: var(--card); border: 1px solid var(--line);
+    border-radius: 26px; padding: 24px 28px; margin-bottom: 24px;
+  }
+  .mascot { font: 11px/11px ui-monospace, Menlo, monospace; color: var(--fg); user-select: none; text-align: left; display: inline-block; }
+  h1 { font-size: 1.7rem; font-weight: 650; letter-spacing: -0.03em; margin-bottom: 26px; }
+  h1 .gg { color: var(--accent); }
+
+  .paste {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px; display: flex; gap: 12px; align-items: center; text-align: left;
+  }
+  .paste .p { color: var(--accent); }
+  .paste code { flex: 1; overflow-x: auto; white-space: nowrap; color: var(--fg); }
+  .paste button {
+    background: var(--accent); color: var(--bg); border: 0; border-radius: 7px;
+    font: inherit; font-weight: 600; padding: 6px 14px; cursor: pointer;
+    transition: transform 0.12s, background 0.12s, box-shadow 0.12s;
+  }
+  .paste button:hover { filter: brightness(1.15); }
+  .paste button:active { transform: scale(0.94); }
+  .paste button.copied { background: #a8e6b6; animation: pop 0.4s ease; box-shadow: 0 0 0 4px rgba(124, 179, 137, 0.25); }
+  @keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.14); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+  details { margin-top: 40px; text-align: left; }
+  summary {
+    color: var(--muted); font-size: 12.5px; cursor: pointer; list-style: none;
+    text-align: center; user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; color: var(--accent); }
+  details[open] summary::before { content: "▾ "; }
+  summary:hover { color: var(--fg); }
+  .more { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 20px; }
+  .more p { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .kind { margin-top: 46px; color: var(--muted); font-size: 12px; }
+  .ezo { margin-top: 6px; color: #3d4048; font-size: 11px; }
+  .ezo a { color: #3d4048; text-decoration: none; }
+  .ezo a:hover { color: var(--muted); text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="badge"><pre class="mascot" id="mascot"></pre></div>
+    <h1>superbot<span class="gg">.gg</span></h1>
+
+    <div class="paste">
+      <span class="p">$</span>
+      <code>paste https://superbot.gg into any LLM</code>
+      <button onclick="copyUrl(this)">copy</button>
+    </div>
+
+    <div id="oneliner"></div>
+
+    <details>
+      <summary>what happens next</summary>
+      <div class="more">
+        <p>superbot lives at one URL. paste it into any LLM and it moves in — that's the whole install.</p>
+        <p>ask for something it can't do yet, and it learns. what it learns, it keeps. always learning, always evolving: come back tomorrow and it knows more than it did today.</p>
+      </div>
+    </details>
+
+    <p class="ezo">created by <a href="https://ezolabs.net">EZO Labs Inc</a></p>
+  </div>
+<script type="module">
+  import { Mascot, consoleEgg } from 'assets/mascot.js?v=6';
+  import { mountInstallSnippet } from 'assets/install-snippet.js?v=12';
+  mountInstallSnippet(document.getElementById('oneliner'));
+  new Mascot(document.getElementById('mascot'), { cols: 44, rows: 22 });
+  consoleEgg({ lines: ["psst. you found the console. that's very on-brand of you."] });
+</script>
+</body>
+</html>

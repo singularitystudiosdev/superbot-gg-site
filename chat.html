@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<!-- img-src is the load-bearing directive: the transcript renders MODEL text,
+     so a markdown image is a browser fetch of an attacker-chosen URL. md.js
+     allowlists srcs itself; this holds even if the renderer regresses.
+     'unsafe-inline' covers the page's own <style> and module bootstrap. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'"/>
+<title>chat · superbot.gg</title>
+<link rel="icon" href="assets/favicon.svg"/>
+<link rel="stylesheet" href="assets/site.css?v=1"/>
+<style>
+  /* the chat keeps its own darker surface family; everything else (motion,
+     focus rings, radii) comes from site.css */
+  :root { --bg:#0a0b0d; --fg:#e8e4d9; --muted:#8b8778; --accent:#7cb389; --line:#20222a; --card:#111318; --raised:#181b22; }
+  /* themed scrollbars: standards-only (Baseline 2025) — thin hairline thumb,
+     invisible track; no ::-webkit-scrollbar (ignored once scrollbar-color is set) */
+  * { box-sizing:border-box; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  html,body { height:100%; min-height:0; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:var(--fs-sm)/var(--lh-sm) var(--font-mono); display:flex; flex-direction:column; }
+  /* app header: 44px, the wordmark is the way home */
+  header { display:flex; align-items:center; gap:var(--sp-2); padding:0 var(--sp-4); min-height:44px;
+           border-bottom:1px solid var(--line); flex:none; }
+  header .dot { width:8px; height:8px; border-radius:50%; background:var(--line); transition:background var(--dur-4) var(--ease-std); }
+  header .dot.on { background:var(--accent); }
+  header a.word { font-weight:650; letter-spacing:0; color:var(--fg); text-decoration:none; display:inline-flex; align-items:center; min-height:32px; border-radius:var(--r-sm); }
+  header a.word .gg { color:var(--accent); }
+  header span { color:var(--muted); }
+  header a.docs { margin-left:auto; color:var(--muted); text-decoration:none; display:inline-flex; align-items:center; min-height:28px; padding:0 var(--sp-2); border-radius:var(--r-md); font-size:var(--fs-xs);
+                  transition:color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std); }
+  header a.docs:hover { color:var(--fg); background:var(--raised); }
+  header .key { margin-left:var(--sp-1); background:none; border:1px solid var(--line); color:var(--muted);
+                border-radius:var(--r-md); min-height:28px; padding:0 var(--sp-3); font:inherit; font-size:var(--fs-xs); cursor:pointer;
+                transition:color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std); }
+  header .key:hover { color:var(--fg); border-color:var(--accent); }
+  header .key.set { color:var(--accent); border-color:var(--accent); }
+  .shell { flex:1; display:flex; min-height:0; }
+  nav#list { width:12rem; flex:none; border-right:1px solid var(--line); padding:var(--sp-2); overflow-y:auto; }
+  nav#list .new { display:block; width:100%; margin-bottom:var(--sp-2); background:none; border:1px solid var(--line);
+                  color:var(--muted); border-radius:var(--r-md); min-height:32px; padding:var(--sp-1); font:inherit; font-size:var(--fs-xs); cursor:pointer;
+                  transition:color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std); }
+  nav#list .new:hover { color:var(--accent); border-color:var(--accent); }
+  nav#list #search { width:100%; margin-bottom:var(--sp-2); background:var(--card); border:1px solid var(--line);
+                     color:var(--fg); border-radius:var(--r-md); min-height:32px; padding:var(--sp-1) var(--sp-2); font:inherit; font-size:var(--fs-xs); outline:none; }
+  nav#list #search:focus { border-color:var(--accent); }
+  .rowx { position:relative; display:block; }
+  .rowx .rowacts { position:absolute; right:var(--sp-1); top:50%; transform:translateY(-50%); display:flex; gap:2px;
+                   opacity:0; transition:opacity var(--dur-2) var(--ease-std); }
+  .rowx:hover .rowacts, .rowx:focus-within .rowacts, .rowx .ract.arm { opacity:1; }
+  .ract.arm { color:var(--danger); border-color:var(--danger-line); }
+  .ract:hover { color:var(--fg); }
+  .rowx input.ren { width:100%; background:var(--card); border:1px solid var(--accent); color:var(--fg);
+                    border-radius:var(--r-md); min-height:32px; padding:0 var(--sp-2); font:inherit; font-size:var(--fs-xs); outline:none; }
+  nav#list button.chat { display:block; width:100%; text-align:left; background:none; border:0; color:var(--muted);
+                         border-radius:var(--r-md); min-height:32px; padding:var(--sp-1) 3.2rem var(--sp-1) var(--sp-2); font:inherit; font-size:var(--fs-xs); cursor:pointer;
+                         white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+                         transition:color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std); }
+  nav#list button.chat.active { color:var(--fg); background:var(--card); }
+  nav#list button.chat:hover { color:var(--fg); background:var(--raised); }
+  /* the gutter is reserved so the bar appearing mid-stream never re-wraps the transcript */
+  main { flex:1; overflow-y:auto; padding:var(--sp-4); min-width:0; scrollbar-gutter:stable; }
+  /* finished rows neither relayout nor render while the live row repaints per
+     frame — long transcripts stay flat-cost (the leaders' known failure) */
+  .msg { max-width:52rem; margin:0 auto var(--sp-4); contain:layout style;
+         content-visibility:auto; contain-intrinsic-size:auto 3.5rem; }
+  .msg.live { content-visibility:visible; }
+  /* streaming caret rides the last block of the live body while tokens flow */
+  .msg.live.streaming .body > :last-child::after { content:'▊'; color:var(--accent);
+    animation:blink 1.1s steps(1) infinite; margin-left:.12rem; }
+  @media (prefers-reduced-motion: reduce) {
+    .msg.live.streaming .body > :last-child::after { animation:none; }
+  }
+  /* row label: 12px floor, actions ride beside it at 24px targets */
+  /* a block, not flex: chat.js writes "superbot · <span class=stage>" and
+     flex would drop the whitespace between them; the 24px line box is what
+     gives the inline action buttons their target height */
+  .msg .who { color:var(--muted); font-size:var(--fs-xs); line-height:24px; text-transform:uppercase; letter-spacing:.07em;
+              margin-bottom:var(--sp-1); }
+  .msg .body { white-space:pre-wrap; word-break:break-word; }
+  .msg.bot .body { white-space:normal; background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:var(--sp-3) var(--sp-4); }
+  .msg.me .body { color:var(--fg); }
+  /* rendered markdown (md.js) */
+  .msg.bot .body p { margin:0 0 var(--sp-2); } .msg.bot .body p:last-child { margin-bottom:0; }
+  .msg.bot .body .h { font-weight:650; margin:var(--sp-3) 0 var(--sp-1); letter-spacing:0; }
+  .msg.bot .body .h.h1 { font-size:var(--fs-lg); line-height:var(--lh-lg); } .msg.bot .body .h.h2 { font-size:var(--fs-base); line-height:var(--lh-base); }
+  .msg.bot .body .h.h3 { font-size:var(--fs-sm); }
+  .msg.bot .body .h:first-child { margin-top:0; }
+  .msg.bot .body ul, .msg.bot .body ol { margin:var(--sp-1) 0 var(--sp-2); padding-left:1.2rem; }
+  .msg.bot .body li { margin:2px 0; }
+  .msg.bot .body blockquote { margin:var(--sp-2) 0; padding:2px 0 2px var(--sp-3); border-left:2px solid var(--accent); color:var(--muted); }
+  .msg.bot .body a { color:var(--accent); text-decoration:none; }
+  .msg.bot .body a:hover { text-decoration:underline; }
+  .msg.bot .body hr { border:0; border-top:1px solid var(--line); margin:var(--sp-3) 0; }
+  .msg.bot .body table { border-collapse:collapse; margin:var(--sp-2) 0; font-size:var(--fs-xs); line-height:var(--lh-xs); display:block; overflow-x:auto; }
+  .msg.bot .body th, .msg.bot .body td { border:1px solid var(--line); padding:var(--sp-1) var(--sp-2); text-align:left; }
+  .msg.bot .body th { color:var(--muted); background:var(--raised); }
+  .msg .body code { background:var(--raised); border-radius:var(--r-sm); padding:1px 5px; }
+  .msg .body pre { background:var(--raised); border-radius:var(--r-md); padding:var(--sp-2) var(--sp-3); overflow-x:auto; }
+  /* fenced code: label bar with language + copy, the ChatGPT code-card shape */
+  .msg.bot .body .code { background:var(--raised); border:1px solid var(--line); border-radius:var(--r-md); margin:var(--sp-2) 0; overflow:hidden; }
+  .msg.bot .body .code .lbl { display:flex; align-items:center; gap:var(--sp-2); padding:var(--sp-1) var(--sp-2); min-height:28px;
+                              border-bottom:1px solid var(--line); color:var(--muted); font-size:var(--fs-xs); line-height:var(--lh-xs); }
+  .msg.bot .body .code pre { border-radius:0; margin:0; padding:var(--sp-2) var(--sp-3); background:none; }
+  /* code tokens (md.js micro-lexer): a calm 4-color scheme on the card bg */
+  .msg .body .code .tk-c { color:var(--muted); font-style:italic; }
+  .msg .body .code .tk-s { color:var(--accent); }
+  .msg .body .code .tk-n { color:#d9b380; }
+  .msg .body .code .tk-k { color:#9fb5d9; }
+  /* markdown images: bounded, bordered, lazy — the shape image-gen answers land in */
+  .msg .body img { display:block; max-width:100%; max-height:24rem; border:1px solid var(--line);
+                   border-radius:var(--r-md); margin:var(--sp-2) 0; }
+  .cpy, .act, .ract { display:inline-flex; align-items:center; vertical-align:middle; background:none; border:1px solid transparent; color:var(--muted); border-radius:var(--r-sm);
+                      min-height:24px; padding:0 var(--sp-2); font:inherit; font-size:var(--fs-xs); cursor:pointer;
+                      transition:color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std); }
+  .cpy:hover, .act:hover { color:var(--accent); border-color:var(--line); }
+  .crsr { color:var(--accent); animation: blink 1.1s steps(1) infinite; }
+  .msg.live .stage { text-transform:none; color:var(--accent); }
+  .msg.err.bot .body { border-color:var(--danger-line); }
+  /* per-message actions live in the .who slot; revealed on row hover */
+  .msg .who .acts { margin-left:var(--sp-2); text-transform:none; letter-spacing:0; opacity:0; transition:opacity var(--dur-2) var(--ease-std); }
+  .msg:hover .who .acts, .msg:focus-within .who .acts, .msg.live .who .acts { opacity:1; }
+  @media (hover:none) { .msg .who .acts { opacity:1; } }
+  .msg .edit { width:100%; background:var(--card); border:1px solid var(--accent); color:var(--fg);
+               border-radius:var(--r-md); padding:var(--sp-2) var(--sp-3); font:inherit; outline:none; resize:vertical; min-height:3.2em; }
+  /* jump-to-latest pill, ChatGPT-style, floats just above the composer,
+     clear of the mascot who owns the footer's center */
+  #pill { position:absolute; left:50%; bottom:calc(100% + var(--sp-2)); transform:translateX(-50%); background:var(--card); border:1px solid var(--line);
+          color:var(--muted); border-radius:var(--r-pill); min-height:28px; padding:0 var(--sp-3); font:inherit; font-size:var(--fs-xs); cursor:pointer;
+          opacity:0; visibility:hidden; pointer-events:none;
+          transition:opacity var(--dur-3) var(--ease-std), visibility 0s linear var(--dur-3), color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std); }
+  #pill.show { opacity:1; visibility:visible; pointer-events:auto; transition-delay:0s; }
+  #pill:hover { color:var(--accent); border-color:var(--accent); }
+  footer { position:relative; border-top:1px solid var(--line); padding:var(--sp-2) var(--sp-4) var(--sp-3); flex:none; }
+  .foot { max-width:52rem; margin:0 auto; display:flex; flex-direction:column; gap:var(--sp-2); }
+  /* the pet is a glyph grid, not text: its size is the art's scale */
+  #pet { font:9px/1.06 var(--font-mono); color:var(--accent); text-align:center; margin:0; }
+  /* fresh chat: the robot greets in the foreground and the input-bar pet
+     hides — the mascot moves aside once the conversation starts. */
+  body.fresh #pet { display:none; }
+  .hello { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  /* 15px cap (was 17): the hello pet runs the footer's 34×15 grid — the
+     minimum that samples the horn tips and centers the baked fallback art
+     uncropped — and 34 cols must fit a 375px phone's #log. */
+  .hello .m { font:clamp(11px, 5.7vw, 15px)/1.06 var(--font-mono); color:var(--accent); margin:0; }
+  /* the lander's speech bubble, cloned so the fresh chat IS the main page:
+     typewriter greeting conducting the face, wordmark under the pet */
+  .hello .bubble {
+    position: relative; display: inline-block; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--r-xl); padding: var(--sp-2) var(--sp-4);
+    font-size: clamp(12px, 3.3vw, 13px); line-height: var(--lh-sm); margin-bottom: var(--sp-4); white-space: nowrap; min-height: 40px;
+  }
+  .hello .bubble::after {
+    content: ''; position: absolute; bottom: -6.5px; left: 50%; width: 11px; height: 11px;
+    background: var(--card); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  /* pre-JS state: chat.js writes this bubble `hidden` and mountGreeting
+     unhides it — the display:inline-block above overrides the UA's [hidden]
+     rule, so without this the fresh load parks an EMPTY bubble (measured
+     2026-09-01: the mascot-less chat pane the user reported). */
+  .hello .bubble[hidden] { display: none; }
+  .hello .bubble .caret { color: var(--accent); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hello .word { font:650 var(--fs-h2)/1.2 var(--font-mono); letter-spacing:var(--tracking-tight); margin:var(--sp-4) 0 0; }
+  .hello .word .gg { color:var(--accent); }
+  .hello p.hint { color:var(--muted); font-size:var(--fs-xs); line-height:var(--lh-xs); margin:var(--sp-1) 0 0; max-width:34rem; }
+  form { display:flex; gap:var(--sp-2); align-items:flex-end; }
+  input, textarea { flex:1; background:var(--card); border:1px solid var(--line); color:var(--fg);
+          border-radius:var(--r-md); padding:var(--sp-2) var(--sp-3); font:inherit; outline:none;
+          transition:border-color var(--dur-2) var(--ease-std); }
+  input:focus, textarea:focus { border-color:var(--accent); }
+  footer textarea { resize:none; min-height:36px; field-sizing:content; max-height:40vh; }
+  button.send { background:var(--accent); color:var(--accent-ink); border:0; border-radius:var(--r-md);
+                min-width:44px; min-height:36px; padding:0 var(--sp-3); font:inherit; font-weight:600; cursor:pointer;
+                transition:filter var(--dur-2) var(--ease-std), transform var(--dur-1) var(--ease-std), background-color var(--dur-2) var(--ease-std); }
+  button.send:hover { filter:brightness(1.08); }
+  button.send:active { transform:scale(.96); }
+  button.send.stop { background:var(--danger); color:var(--bg); }
+  @media (max-width:44rem) { nav#list { display:none; } #pet { font-size:7px; } main { padding:var(--sp-3); } }
+</style>
+</head>
+<body>
+<a class="sb-skip" href="#q">skip to the message box</a>
+<header>
+  <div class="dot" id="dot"></div>
+  <a class="word" href="index.html">superbot<span class="gg">.gg</span></a><span>/ chat</span>
+  <a class="docs" href="docs.html">docs</a>
+  <button class="key" id="keybtn" title="Paste an sbk_ key, or redeem a /join/ link, to unlock the full executor">key</button>
+</header>
+<div class="shell">
+  <nav id="list"><button class="new" id="newbtn">+ new chat</button>
+    <input id="search" placeholder="search chats…" autocomplete="off"/>
+  </nav>
+  <main id="log" aria-live="polite" aria-label="conversation"></main>
+</div>
+<footer><div class="foot">
+  <pre id="pet"></pre>
+  <form id="f">
+    <textarea id="q" rows="1" placeholder="ask superbot…  (Enter to send, Shift+Enter for a new line)" autocomplete="off" autofocus></textarea>
+    <button class="send" id="send" title="send">↵</button>
+  </form>
+  <button id="pill" title="jump to latest">↓ latest</button>
+</div></footer>
+<script src="assets/chat.js"></script>
+<script type="module">
+  // The pet: a prominent companion above the input. He derps when idle,
+  // grins while a request runs, and makes a little 'o' face on an error.
+  // On a fresh chat he stands in the log instead (the hello state), saying
+  // hi in the foreground until the first answer lands.
+  const { Mascot, mountGreeting } = await import('assets/mascot.js');
+  // prefers-reduced-motion: the mascot is decoration — a user who asked the
+  // OS for less motion gets the static face, not the animation loop.
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pet = new Mascot(document.getElementById('pet'), { variant: 'smolGrin', anim: reduced ? 'statue' : 'calm', cols: 34, rows: 15 });
+  addEventListener('sb:busy', (e) => {
+    if (e.detail) pet.setExpr({ eyeL: 'happy', eyeR: 'happy', mouth: 'grin' }, 60000);
+    else pet.setExpr({ eyeL: 'open', eyeR: 'open', mouth: 'smile' }, 1500);
+  });
+  addEventListener('sb:error', () => {
+    pet.setExpr({ eyeL: 'closed', eyeR: 'closed', mouth: 'o' }, 2600);
+  });
+  // The pet is the progress surface too: the SSE status lane (thinking →
+  // routing → tool → writing) perks him up while the stages run, and any copy
+  // anywhere in the page gets the celebration the mascot already knows.
+  addEventListener('sb:status', (e) => {
+    const { stage } = e.detail ?? {};
+    if (stage === 'routing') pet.setExpr({ eyeL: 'open', eyeR: 'open', mouth: 'smile' }, 20000);
+    else if (stage === 'tool') pet.setExpr({ eyeL: 'happy', eyeR: 'happy', mouth: 'grin' }, 60000);
+    else if (stage === 'writing') pet.setExpr({ eyeL: 'happy', eyeR: 'happy', mouth: 'grin' }, 60000);
+  });
+  addEventListener('superbot:copied', () => {
+    pet.setExpr({ eyeL: 'happy', eyeR: 'happy', mouth: 'grin' }, 1500);
+  });
+  // Foreground greeting robot: (re)mounted whenever an empty log paints. The
+  // bubble above him types the lander's greeting and conducts the face —
+  // the same hero as the main page, inside the chat log.
+  let hello = null;
+  addEventListener('sb:hello', () => {
+    const el = document.getElementById('hellopet');
+    if (!el) { hello = null; return; }
+    // 34×15 — the footer pet's proven grid: at 26×12 the sampler averaged the
+    // horn tips away and the baked fallback art clipped its right edge
+    // (FALLBACK_ART is 32×14). Measured 2026-09-01, the "scuffed" report.
+    hello = new Mascot(el, { variant: 'smolGrin', anim: reduced ? 'statue' : 'perky', cols: 34, rows: 15 });
+    const bubble = document.getElementById('hellobubble');
+    if (bubble) mountGreeting(bubble, { mascot: hello });
+  });
+  // The classic script paints the empty state synchronously — its sb:hello
+  // fires before this module runs, i.e. before the listener above exists.
+  // Re-fire HERE, after registration, so a fresh visitor meets the robot on
+  // the very first load. (Dispatched before this point, the event died with
+  // no listener and the hello pane stayed an empty bubble — measured
+  // 2026-09-01.)
+  if (document.getElementById('hello')) dispatchEvent(new Event('sb:hello'));
+</script>
+</body>
+</html>

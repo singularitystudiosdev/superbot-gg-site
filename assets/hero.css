@@ -1,0 +1,320 @@
+/* The resident-agent lander: the stage (a desktop frame with the mascot at the
+   keyboard), incident cards that pop up around it, the beam of traffic while it
+   works, the autonomy dial and the superbot.log block. Tokens come from
+   site.css; numbers and their sources are in harness-notes/brand-refresh.md
+   (Sentry's incident cards, Cluely's enter → work → swipe-out cycle, sonner's
+   stack math, Material 3 durations). Only transform, opacity and the SVG dash
+   offset animate. */
+
+:root { --warn: #d9b86b; --stage: #0a0b0d; --window: #141517; }
+
+/* ---- hero grid: one column by default; the split variant is a two-column
+   grid on wide screens (copy + install left, stage right, log across) ---- */
+.hero {
+  max-width: var(--container); margin: 0 auto;
+  padding: var(--sp-10) var(--sp-5) 0;
+  display: grid; gap: var(--sp-6); justify-items: center; text-align: center;
+  position: relative; z-index: 1;
+}
+/* grid items shrink below their content (the one-liner's nowrap command would
+   otherwise set the column's minimum and push a phone page to 620px) */
+.hero > * { min-width: 0; max-width: 100%; }
+.hero-copy { max-width: 760px; }
+.hero h1 { font-size: var(--fs-h1); line-height: 1.1; }
+.hero .sub {
+  margin: var(--sp-4) auto 0; max-width: 620px; color: var(--muted);
+  font-size: var(--fs-base); line-height: var(--lh-base);
+}
+.hero .sub b { color: var(--fg); font-weight: 500; }
+/* compact: one clause per line, a break wherever the colour changes */
+.hero .sub { max-width: 620px; }
+.hero .sub br { display: initial; }
+/* the closing line: a slow accent shimmer across the words, the one place the
+   copy is allowed to glow. Reduced motion holds the accent colour, no sweep. */
+.hero .sub .vibe {
+  color: var(--accent); font-weight: 500;
+  background: linear-gradient(100deg, var(--accent) 0 38%, #e8e4d9 50%, var(--accent) 62% 100%);
+  background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: vibe-sweep 3.2s var(--ease-std) infinite;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+@keyframes vibe-sweep { 0% { background-position: 120% 0; } 100% { background-position: -140% 0; } }
+@media (prefers-reduced-motion: reduce) { .hero .sub .vibe { animation: none; background: none; color: var(--accent); } }
+
+/* the benefit pop: on every resolved card a chip floats up and out with the
+   user's own gain on it (+$4.12, +702 tokens, 3x faster). One line, 900ms,
+   gone; the card keeps its footer. */
+.gain {
+  position: absolute; z-index: 6; pointer-events: none;
+  font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; white-space: nowrap;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--window));
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius: var(--r-pill);
+  padding: 2px 10px; box-shadow: 0 8px 24px -12px rgba(0, 0, 0, .9);
+  animation: gain-rise 1100ms var(--ease-out) both;
+}
+@keyframes gain-rise {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(.9); }
+  18% { opacity: 1; transform: translate(-50%, -6px) scale(1.04); }
+  70% { opacity: 1; transform: translate(-50%, -26px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -40px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .gain { animation: gain-fade 1100ms linear both; } }
+@keyframes gain-fade { 0%, 60% { opacity: 1; transform: translate(-50%, -12px); } 100% { opacity: 0; transform: translate(-50%, -12px); } }
+@media (max-width: 560px) { .hero .sub { font-size: var(--fs-sm); line-height: var(--lh-sm); } }
+.hero #oneliner { width: 100%; }
+
+@media (min-width: 900px) {
+  .hero[data-variant="split"] {
+    grid-template-columns: 46fr 54fr; column-gap: var(--sp-12);
+    grid-template-areas: "copy stage" "dial stage" "install stage" "log log";
+    text-align: left; justify-items: stretch; align-items: center;
+  }
+  .hero[data-variant="split"] .hero-copy { grid-area: copy; align-self: end; max-width: none; }
+  /* the narrower column: two lines of headline, not three */
+  .hero[data-variant="split"] h1 { font-size: clamp(1.75rem, 1rem + 2.4vw, 2.75rem); }
+  .hero[data-variant="split"] .sub { margin-left: 0; }
+  .hero[data-variant="split"] .dial { grid-area: dial; justify-self: start; }
+  .hero[data-variant="split"] #oneliner { grid-area: install; align-self: start; }
+  .hero[data-variant="split"] .sb-oneliner { margin: 0; }
+  .hero[data-variant="split"] .stage { grid-area: stage; max-width: none; }
+  .hero[data-variant="split"] .log { grid-area: log; max-width: none; }
+}
+
+/* ---- the stage: the app's own canvas colour, a 16:10 window ---- */
+.stage {
+  position: relative; width: 100%; max-width: 720px; aspect-ratio: 16 / 10;
+  background: var(--stage); border: 1px solid var(--line); border-radius: 12px;
+  overflow: hidden; text-align: left;
+  box-shadow: 0 32px 80px -40px rgba(0, 0, 0, .9);
+}
+.stage-bar {
+  position: absolute; inset: 0 0 auto 0; height: 28px; z-index: 2;
+  display: flex; align-items: center; gap: 6px; padding: 0 12px;
+  border-bottom: 1px solid var(--line); background: var(--stage);
+  font-size: 11px; line-height: 16px; color: var(--muted); white-space: nowrap;
+}
+.stage-bar i, .card-bar i {
+  width: 7px; height: 7px; border-radius: 50%; flex: none;
+  border: 1px solid var(--line); background: var(--raised);
+}
+.stage-bar span { margin-left: 6px; overflow: hidden; text-overflow: ellipsis; }
+.led { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
+.led.on { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.led.work { background: var(--warn); animation: led-pulse 1.2s ease-in-out infinite; }
+@keyframes led-pulse { 50% { opacity: .35; } }
+.stage-bar .led, .card-bar .led { margin-left: auto; }
+
+/* the mascot sits at the bottom, centred on the desk, bottom-left in a stack */
+.stage .mascot {
+  /* 40 cols × 20 rows: 9px glyphs make a ~215px-wide, 180px-tall character
+     in the 720px stage; the side columns (cards) stay clear of its x range */
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); margin: 0;
+  font: clamp(5px, 1.25vw, 9px) / 1 var(--font-mono); color: var(--fg); user-select: none;
+  filter: drop-shadow(0 0 18px rgba(124, 179, 137, .14)); cursor: default;
+}
+.stage.stacked .mascot { left: 10px; transform: none; font-size: clamp(4.5px, 1.4vw, 8px); }
+
+/* the keyboard: two staggered rows of keycaps under the character (dkl's
+   textmode keyboard rows, as CSS caps so a struck key can flash in the
+   accent). A hit lands at once and decays over 180ms, Material's small-area
+   exit duration; hero-stage.js centres it under the mascot in either layout. */
+.keys {
+  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 2;
+  display: grid; gap: 3px; pointer-events: none;
+}
+.keys .row { display: flex; gap: 3px; }
+.keys .row + .row { padding-left: 8px; }
+.keys i {
+  display: block; width: 13px; height: 8px; border-radius: 2px;
+  border: 1px solid var(--line); background: var(--raised);
+  transition: background-color 180ms var(--ease-out), border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+.keys i.hit {
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+  transition: none;
+}
+.stage.stacked .keys { bottom: 6px; gap: 2px; }
+.stage.stacked .keys .row { gap: 2px; }
+.stage.stacked .keys .row + .row { padding-left: 6px; }
+.stage.stacked .keys i { width: 10px; height: 6px; }
+
+/* the helper: a smaller second character in the left wing, with a badge
+   naming whose agent it is. Walked in and out by hero-stage.js; hidden
+   until its beat. */
+.helper {
+  position: absolute; left: 22px; bottom: 14px; z-index: 3;
+  display: grid; justify-items: center; gap: 4px; pointer-events: none;
+}
+.helper[hidden] { display: none; }
+.helper .mascot-sm {
+  margin: 0; font: clamp(3.4px, .8vw, 5.8px) / 1 var(--font-mono); color: var(--fg); user-select: none;
+  filter: drop-shadow(0 0 12px rgba(217, 184, 107, .14));
+}
+.helper .helper-tag {
+  font-size: 10px; line-height: 14px; padding: 0 7px; border-radius: var(--r-pill);
+  border: 1px solid var(--line); background: var(--card); color: var(--muted); white-space: nowrap;
+}
+.stage.stacked .helper { left: auto; right: 14px; bottom: 12px; }
+/* the help card sits above the helper's head, clear of it, so the beam from
+   superbot's keyboard and the helper both stay visible */
+.stage:not(.stacked) .card[data-kind="help"] { left: 20px; top: 22%; --origin: 0 100%; }
+
+/* the beam: a thin curve from the keyboard's edge to the card it is working
+   on, with dashes travelling along it while it types */
+.beam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+.beam path { fill: none; stroke: var(--accent); stroke-linecap: round; }
+.beam .line { stroke-width: 1.2; opacity: 0; }
+.beam .traffic { stroke-width: 2.2; stroke-dasharray: 3 14; opacity: 0; transition: opacity var(--dur-3) var(--ease-std); }
+.beam.on .traffic { opacity: .9; animation: beam-flow .7s linear infinite; }
+@keyframes beam-flow { to { stroke-dashoffset: -17; } }
+
+/* ---- incident cards: replicas of the app's own window chrome ---- */
+.card {
+  /* 280px in a 720px stage leaves the middle 160px to the mascot */
+  position: absolute; width: min(280px, 42%); z-index: 4;
+  --depth: 0;
+}
+.card-in {
+  background: var(--window); border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+  box-shadow: 0 16px 40px -20px rgba(0, 0, 0, .95);
+  font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--fg);
+  transform-origin: var(--origin, 50% 50%);
+}
+.card-bar {
+  display: flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px;
+  border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; white-space: nowrap;
+}
+.card-bar span { margin-left: 5px; overflow: hidden; text-overflow: ellipsis; }
+.card-body { padding: 10px 12px 8px; display: grid; gap: 5px; }
+.card .problem, .card .ask, .card .fix {
+  display: grid; grid-template-columns: 12px 1fr; gap: 6px; align-items: start; overflow-wrap: anywhere;
+}
+.card .problem { color: var(--danger); transition: color var(--dur-4) var(--ease-std); }
+.card .problem::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin: 5px 3px 0; }
+.card .problem.dim { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.card .ask { color: var(--warn); }
+.card .ask::before { content: '?'; font-weight: 700; text-align: center; }
+.card .fix { color: var(--accent); }
+.card .fix::before { content: '✓'; font-weight: 700; text-align: center; opacity: 0; }
+.card .fix.done::before { opacity: 1; animation: check-pop 180ms cubic-bezier(.34, 1.56, .64, 1) both; }
+@keyframes check-pop { from { transform: scale(.4); } to { transform: none; } }
+.card .fix .t::after { content: '▌'; color: var(--accent); margin-left: 1px; animation: blink 1.06s steps(1) infinite; }
+.card .fix.done .t::after { content: none; }
+@keyframes blink { 50% { opacity: 0; } }
+.card-foot { padding: 0 12px 8px; color: var(--muted); font-size: 11px; line-height: 16px; }
+.card [hidden] { display: none; }
+
+/* desk layout: four anchor slots around the mascot; cards grow out of the
+   slot's own corner, never over the mascot */
+.stage:not(.stacked) .card[data-slot="tl"] { left: 20px; top: 40px; --origin: 0 0; }
+.stage:not(.stacked) .card[data-slot="tr"] { right: 20px; top: 40px; --origin: 100% 0; }
+.stage:not(.stacked) .card[data-slot="ml"] { left: 20px; top: 44%; --origin: 0 50%; }
+.stage:not(.stacked) .card[data-slot="mr"] { right: 20px; top: 44%; --origin: 100% 50%; }
+
+/* stack layout (the split variant, and any stage under 560px): one column,
+   newest on top, each older card lifted 14px and 5% smaller (sonner) */
+.stage.stacked .card {
+  right: 12px; top: 36px; width: min(300px, 56%);
+  transform: translateY(calc(var(--depth) * -14px)) scale(calc(1 - var(--depth) * .05));
+  opacity: calc(1 - var(--depth) * .28);
+  z-index: calc(10 - var(--depth));
+  transition: transform 400ms var(--ease-out), opacity 400ms var(--ease-out);
+}
+.stage.stacked .card[data-depth="1"] { --depth: 1; }
+.stage.stacked .card[data-depth="2"] { --depth: 2; }
+/* the cards behind take the front card's height (sonner's --front-toast-height),
+   so a taller older card never peeks out under a shorter new one */
+.stage.stacked .card-in { --origin: 50% 0; overflow: hidden; transition: height 400ms var(--ease-out); }
+@media (max-width: 560px) {
+  /* no JS to add .stacked on a phone: the static cards still stack. The
+     [data-slot] selector matches the desk rules' specificity so these win. */
+  .stage:not(.stacked) .card[data-slot] { right: 12px; left: auto; top: 36px; width: min(300px, 56%); }
+  .stage:not(.stacked) .card[data-depth="1"] { transform: translateY(-14px) scale(.95); opacity: .72; z-index: 9; }
+  .stage:not(.stacked) .card[data-depth="2"] { transform: translateY(-28px) scale(.9); opacity: .44; z-index: 8; }
+  .stage:not(.stacked) .mascot { left: 10px; transform: none; font-size: clamp(4.5px, 1.4vw, 8px); }
+  .stage:not(.stacked) .keys { left: 76px; bottom: 6px; }
+  .stage:not(.stacked) .keys i { width: 10px; height: 6px; }
+}
+
+/* ---- the autonomy dial: a real segmented control (radiogroup) that sets
+   which cards ask before they fix. 36px targets, arrow keys move the choice. ---- */
+.dial { display: inline-flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-sm); color: var(--muted); flex-wrap: wrap; justify-content: center; }
+.dial .seg { display: inline-flex; gap: 2px; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; background: var(--card); }
+.dial .seg button {
+  display: inline-flex; align-items: center; min-height: 30px; padding: 0 14px;
+  border: 1px solid transparent; border-radius: var(--r-pill); white-space: nowrap;
+  background: none; color: var(--muted); cursor: pointer;
+  transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std), border-color var(--dur-2) var(--ease-std);
+}
+.dial .seg button:hover { color: var(--fg); background: var(--raised); }
+.dial .seg button[aria-checked="true"] { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.dial .hint { font-size: var(--fs-xs); line-height: var(--lh-xs); min-height: var(--lh-xs); flex-basis: 100%; text-align: center; transition: opacity var(--dur-3) var(--ease-std); }
+@media (min-width: 900px) { .hero[data-variant="split"] .dial .hint { text-align: left; } }
+
+/* ---- superbot.log: the six pillars as evidence, not a feature list ---- */
+.log {
+  width: 100%; max-width: var(--content); text-align: left;
+  background: var(--stage); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-4); font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--muted);
+}
+.log .lab { font-size: var(--fs-xs); line-height: var(--lh-xs); letter-spacing: .08em; text-transform: uppercase; margin-bottom: var(--sp-2); }
+.log ol { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-1); }
+/* one line per event, never wrapped: a terminal clips at the edge. The tag
+   column is wide enough for "superbot", the longest tag, so the text column
+   starts on the same x for every row. */
+.log li { display: grid; grid-template-columns: 8ch 9ch minmax(0, 1fr); gap: var(--sp-3); min-height: var(--lh-sm); white-space: nowrap; }
+.log li .t { overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.log time { opacity: .75; transition: color 600ms var(--ease-std), opacity 600ms var(--ease-std); }
+.log b { color: var(--accent); font-weight: 500; }
+.log li.flash time { color: var(--warn); opacity: 1; transition: none; }
+/* a freshly appended line rises in; the oldest simply leaves */
+.log li { transition: opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out); }
+.log li.new { opacity: 0; transform: translateY(6px); transition: none; }
+.log .money { color: var(--accent); }
+@media (max-width: 560px) { .log li { grid-template-columns: 9ch minmax(0, 1fr); } .log time { display: none; } }
+
+/* ---- works anywhere: one sentence under the install box ---- */
+.anywhere { margin-top: var(--sp-8); max-width: var(--content); color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); text-align: center; }
+.anywhere b { color: var(--fg); font-weight: 500; display: block; font-size: var(--fs-base); line-height: var(--lh-base); margin-bottom: 2px; }
+@media (min-width: 900px) { .hero[data-variant="split"] .anywhere { grid-column: 1 / -1; text-align: left; max-width: none; } }
+
+/* ---- reduced motion: the stage is a still, the log is a list ---- */
+@media (prefers-reduced-motion: reduce) {
+  .led.work, .beam .traffic, .card .fix .t::after, .card .fix.done::before { animation: none; }
+  .stage.stacked .card, .card .problem { transition: none; }
+}
+
+/* ---- the thought: what the character is thinking while it reads a card,
+   and what it is "dreaming" between fixes (its profile of you, packed a
+   little tighter each time). hero-stage.js fills it and places it just
+   above the head; it is decoration, aria-hidden, and never in the tree the
+   stage's own label already describes. ---- */
+.thought {
+  position: absolute; z-index: 5; right: 16px; bottom: 16px;
+  max-width: 250px; padding: 6px 10px; border-radius: 12px;
+  background: color-mix(in srgb, var(--window) 88%, transparent); border: 1px solid var(--line);
+  font: 11px/16px var(--font-mono); color: var(--muted); pointer-events: none;
+  opacity: 0; transition: opacity 200ms var(--ease-std, ease);
+}
+.thought.on { opacity: 1; }
+.thought .lab { color: var(--accent); }
+.thought .lab::after { content: ' · '; color: var(--muted); }
+.thought .t { color: var(--fg); }
+/* two small dots toward the character, the way a thought bubble trails to
+   its thinker: leftward on the desk, downward in the stacked layout */
+.thought::after {
+  content: '· ·'; position: absolute; left: -18px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 12px; letter-spacing: 2px; line-height: 1;
+}
+/* stacked: the cards pile on the right and the character sits bottom-left,
+   so the spare corner is top-left */
+.stage.stacked .thought { right: auto; bottom: auto; left: 12px; top: 40px; max-width: calc(44% - 30px); }
+.stage.stacked .thought::after { left: 14px; top: auto; bottom: -15px; transform: none; }
+@media (max-width: 560px) { .thought { font-size: 10px; line-height: 14px; padding: 4px 8px; } }
+
+/* ---- the works-anywhere line, tucked under the install box's "what does
+   this do?" fold (owner, 2026-09-01): left-aligned like the fold's own
+   copy, and no section gap once it is inside ---- */
+.sb-oneliner details.sb-fold .anywhere { margin-top: var(--sp-3); max-width: none; text-align: left; }
+.sb-oneliner details.sb-fold .anywhere b { font-size: var(--fs-sm); line-height: var(--lh-sm); }

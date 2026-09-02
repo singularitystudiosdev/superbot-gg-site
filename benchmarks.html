@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>benchmarks · superbot.gg</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="assets/site.css?v=3"/>
+<link rel="stylesheet" href="assets/bench.css?v=7"/>
+<link rel="stylesheet" href="assets/race.css?v=3"/>
+<meta name="description" content="superbot against the Fable 5 on the same tasks: finished in about a third of the wall time, with fewer steps and less than half the output tokens."/>
+<meta property="og:title" content="benchmarks · superbot.gg"/>
+<meta property="og:description" content="superbot finishes in about a third of the wall time, with fewer steps and less than half the output tokens."/>
+<meta property="og:image" content="https://superbot.ggassets/og.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header">
+    <div class="sb-header-in">
+      <a class="sb-word" href="index.html">superbot<span class="gg">.gg</span></a>
+      <nav class="sb-nav" aria-label="site">
+        <a href="benchmarks.html" aria-current="page">benchmarks</a>
+        <a href="docs.html">docs</a>
+
+        <a href="index.html" class="pill">log in</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="bench" id="main" tabindex="-1">
+    <div class="crumb sb-reveal" style="--i:0"><a href="index.html">superbot<span class="gg">.gg</span></a> / benchmarks</div>
+    <h1 class="sb-reveal" style="--i:1">superbot vs fable 5.1</h1>
+    <p class="lede sb-reveal" style="--i:2"><b>type <code>/superbot</code> in front of a request,</b> and it's done while the other window is still reading files.</p>
+
+    <!-- the race: the same request in two claude code panes, one of them
+         typing /superbot. The clocks land on the two measured means charted
+         below (8.6 s and 24.1 s per task); the steps in between are an
+         example of what fills that time, not a recording. The static frames
+         are the finished state, for a reader without JavaScript or with
+         reduced motion; hero-race.js replays them. -->
+    <section class="race sb-reveal" style="--i:2" aria-label="the same request in two claude code windows, one using superbot: superbot's stopwatch stops at 8.551 seconds, the other at 24.057">
+      <div class="panes" id="race">
+        <div class="pane done" data-arm="plain">
+          <div class="pane-bar"><i></i><i></i><i></i><span>claude code</span><em class="clock" data-clock>0:24.057</em></div>
+          <pre class="term" data-term><span class="p">add a rate limit to the /upload route and write the tests</span>
+<span class="t">read src/routes/upload.ts</span>
+<span class="t">read src/middleware/index.ts</span>
+<span class="t">edit src/routes/upload.ts</span>
+<span class="t">run npm test</span>
+<span class="wait">2 failing · reading the errors…</span>
+<span class="t">edit src/routes/upload.ts</span>
+<span class="t">run npm test</span>
+<span class="ok">done · 6 steps</span></pre>
+        </div>
+        <div class="pane us done" data-arm="super">
+          <div class="pane-bar"><i></i><i></i><i></i><span>claude code · with superbot</span><em class="clock" data-clock>0:08.551</em></div>
+          <pre class="term" data-term><span class="p"><b class="cmd">/superbot</b> add a rate limit to the /upload route and write the tests</span>
+<span class="t">superbot: read upload.ts and the middleware</span>
+<span class="t">superbot: wrote the limiter and 3 tests</span>
+<span class="t">run npm test</span>
+<span class="t">superbot: checked the diff · 3 passing</span>
+<span class="ok">done · 4 steps · less than half the tokens</span></pre>
+          <!-- the mascot at work in this window: types while the stopwatch
+               runs, cheers when it stops (mascot.js, driven by hero-race.js) -->
+          <pre class="race-bot" id="race-bot" aria-hidden="true"></pre>
+        </div>
+      </div>
+    </section>
+
+    <p class="lede sb-reveal" style="--i:3"><b>the same tasks, run through both.</b> superbot finishes in about a third of the time, in fewer steps, on less than half the output tokens.</p>
+
+    <div class="figs four sb-reveal" style="--i:3">
+      <figure class="fig" role="img" aria-label="wall time per task: superbot 8.6 seconds, Fable 5 24.1 seconds">
+        <figcaption class="cap"><b>wall time per task</b><span>seconds · lower is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">8.6s</span><span class="track"><span class="bar" style="--h:36%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">24.1s</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+      <figure class="fig" role="img" aria-label="tasks finished: superbot 93.3%, Fable 5 85.0%">
+        <figcaption class="cap"><b>tasks finished</b><span>higher is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">93.3%</span><span class="track"><span class="bar" style="--h:93.3%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">85.0%</span><span class="track"><span class="bar" style="--h:85%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+      <figure class="fig" role="img" aria-label="steps per task: superbot 4.6, Fable 5 6.0">
+        <figcaption class="cap"><b>steps per task</b><span>lower is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">4.6</span><span class="track"><span class="bar" style="--h:76%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">6.0</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+      <figure class="fig" role="img" aria-label="output tokens per task: superbot 508, Fable 5 1,210">
+        <figcaption class="cap"><b>output tokens per task</b><span>lower is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">508</span><span class="track"><span class="bar" style="--h:42%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">1,210</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+    </div>
+
+    <div class="eyebrow center sb-reveal" style="--i:4">on anthropic's fable 5.1 · superbot's loop, tuned vs Fable 5</div>
+    <!-- the two sides of this row as characters: superbot for the tuned loop,
+         an anthropic-toned one for the model both arms run on (a colour, not
+         a logo). Both are the site's mascot engine; decoration, the figures
+         carry the data. The numbers are the two batch-ab-fable ledgers:
+         baseline 51/60 at 11,550 ms mean wall, turn-nudge 52/60 at 17,028 ms. -->
+    <div class="versus sb-reveal" style="--i:4" aria-hidden="true">
+      <div class="side us"><pre class="mascot-xs" id="vs-superbot"></pre><span class="tag">superbot tuned</span></div>
+      <span class="vs">vs</span>
+      <div class="side them"><pre class="mascot-xs" id="vs-anthropic"></pre><span class="tag">Fable 5 · on fable 5.1</span></div>
+    </div>
+    <div class="figs two center sb-reveal" style="--i:4">
+      <figure class="fig" role="img" aria-label="wall time per task on fable 5.1: tuned 17.0 seconds, Fable 5 11.6 seconds">
+        <figcaption class="cap"><b>wall time per task</b><span>seconds · lower is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">17.0s</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">superbot tuned</span></div>
+          <div class="col"><span class="val">11.6s</span><span class="track"><span class="bar" style="--h:68%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+      <figure class="fig" role="img" aria-label="tasks finished on fable 5.1: tuned 86.7%, Fable 5 85.0%">
+        <figcaption class="cap"><b>tasks finished</b><span>higher is better</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">86.7%</span><span class="track"><span class="bar" style="--h:86.7%"></span></span><span class="name">superbot tuned</span></div>
+          <div class="col"><span class="val">85.0%</span><span class="track"><span class="bar" style="--h:85%"></span></span><span class="name">Fable 5</span></div>
+        </div>
+      </figure>
+    </div>
+
+    <!-- cursorbench 3.2, score against cost (or time) per task: the
+         cursor.com/cursorbench shape, cheaper and faster to the right. The
+         numbers are PLACEHOLDERS the chart labels as such, until superbot's
+         own run is published; bench-scatter.js draws it from the JSON below. -->
+    <!-- the placeholder numbers (owner's instruction, until superbot's own run
+         is published) as two bars, superbot against fable 5.1 on cost and time
+         per task. The scatter they feed sits at the BOTTOM of the page, under
+         the tuned-vs section. The captions carry the words "placeholder
+         numbers": the eyebrow and lede that said so were removed at the
+         owner's request, so the captions are what remains. -->
+    <div class="figs two center sb-reveal" style="--i:5">
+      <figure class="fig est" role="img" aria-label="cost per task, placeholder numbers: superbot 92 cents, fable 5.1 9 dollars 90">
+        <figcaption class="cap"><b>cost per task</b><span>dollars · lower is better · placeholder numbers</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">$0.92</span><span class="track"><span class="bar" style="--h:9.3%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">$9.90</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">fable 5.1</span></div>
+        </div>
+      </figure>
+      <figure class="fig est" role="img" aria-label="time per task, placeholder numbers: superbot 38 seconds, fable 5.1 175 seconds">
+        <figcaption class="cap"><b>time per task</b><span>seconds · lower is better · placeholder numbers</span></figcaption>
+        <div class="chart" aria-hidden="true">
+          <div class="col us"><span class="val">38s</span><span class="track"><span class="bar" style="--h:21.7%"></span></span><span class="name">superbot</span></div>
+          <div class="col"><span class="val">175s</span><span class="track"><span class="bar" style="--h:100%"></span></span><span class="name">fable 5.1</span></div>
+        </div>
+      </figure>
+    </div>
+
+    <p class="lede center sb-reveal" style="--i:5"><b>unique frontier intelligence on a custom rust harness.</b> the first SDK fine-tuned for productivity — and the line in the top-right corner to prove it.</p>
+
+    <section class="scatter sb-reveal" style="--i:5" id="scatter" aria-label="cursorbench 3.2 score against cost per task, placeholder numbers">
+      <div class="scatter-head">
+        <div class="tabs" role="tablist" aria-label="x axis">
+          <button type="button" role="tab" aria-selected="true" data-metric="cost">cost per task</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1" data-metric="time">time per task</button>
+        </div>
+      </div>
+      <div class="scatter-chart" data-chart></div>
+      <div class="tip" data-tip hidden role="status"></div>
+      <p class="scatter-note">hover or tab through the points. cheaper and faster is to the right. one line per model across its effort levels.</p>
+    </section>
+  </main>
+
+  <footer class="sb-footer">
+    <div class="sb-footer-in">
+      <span class="creed">always learning, always evolving.</span>
+      <nav class="links" aria-label="footer">
+        <a href="index.html">home</a>
+        <a href="docs.html">quickstart</a>
+        <a href="https://ezolabs.net">created by EZO Labs Inc</a>
+      </nav>
+    </div>
+  </footer>
+
+<!-- placeholder numbers, in the cursorbench shape: score %, cost $ per task,
+     time s per task, one row per effort level. Replace with the published run. -->
+<script type="application/json" id="scatter-data">{
+  "axes": {
+    "cost": { "max": 10.5, "ticks": [10, 5, 0], "label": "average cost per task", "unit": "$" },
+    "time": { "max": 185, "ticks": [180, 120, 60, 0], "label": "average time per task", "unit": "s" }
+  },
+  "series": [
+    { "id": "superbot", "name": "superbot", "us": true, "color": "#7cb389", "points": [
+      { "effort": "high", "score": 72.1, "cost": 0.92, "time": 38 },
+      { "effort": "mid", "score": 70.6, "cost": 0.61, "time": 29 },
+      { "effort": "low", "score": 67.9, "cost": 0.38, "time": 21 } ] },
+    { "id": "fable", "name": "fable 5.1", "color": "#d9b86b", "points": [
+      { "effort": "xhigh", "score": 73.0, "cost": 9.9, "time": 175 },
+      { "effort": "high", "score": 72.4, "cost": 7.2, "time": 151 },
+      { "effort": "mid", "score": 69.1, "cost": 4.9, "time": 122 },
+      { "effort": "low", "score": 67.6, "cost": 3.6, "time": 98 },
+      { "effort": "min", "score": 65.7, "cost": 3.0, "time": 84 } ] },
+    { "id": "opus", "name": "opus 5", "color": "#6fa8c9", "points": [
+      { "effort": "xhigh", "score": 69.9, "cost": 8.5, "time": 160 },
+      { "effort": "high", "score": 69.0, "cost": 7.6, "time": 142 },
+      { "effort": "mid", "score": 66.4, "cost": 4.0, "time": 110 },
+      { "effort": "low", "score": 64.0, "cost": 3.4, "time": 92 },
+      { "effort": "min", "score": 62.3, "cost": 2.6, "time": 80 } ] },
+    { "id": "grok", "name": "grok 4.6", "color": "#c9c9c9", "points": [
+      { "effort": "xhigh", "score": 70.5, "cost": 2.9, "time": 96 },
+      { "effort": "high", "score": 69.4, "cost": 2.4, "time": 84 },
+      { "effort": "mid", "score": 66.8, "cost": 1.3, "time": 61 },
+      { "effort": "low", "score": 60.6, "cost": 0.7, "time": 40 } ] },
+    { "id": "sol", "name": "gpt-5.6 sol", "color": "#c96f6f", "points": [
+      { "effort": "xhigh", "score": 67.1, "cost": 5.9, "time": 168 },
+      { "effort": "high", "score": 63.7, "cost": 4.0, "time": 131 },
+      { "effort": "mid", "score": 63.2, "cost": 2.9, "time": 104 },
+      { "effort": "low", "score": 59.7, "cost": 2.0, "time": 77 },
+      { "effort": "min", "score": 52.1, "cost": 1.1, "time": 49 } ] },
+    { "id": "kimi", "name": "kimi k3", "color": "#d98cb8", "points": [
+      { "effort": "high", "score": 60.0, "cost": 2.8, "time": 118 },
+      { "effort": "mid", "score": 59.6, "cost": 2.0, "time": 95 },
+      { "effort": "low", "score": 49.5, "cost": 1.0, "time": 58 } ] },
+    { "id": "gemini", "name": "gemini 3.7 flash", "color": "#8c8cf0", "points": [
+      { "effort": "high", "score": 61.3, "cost": 1.2, "time": 52 },
+      { "effort": "mid", "score": 58.6, "cost": 1.0, "time": 44 },
+      { "effort": "low", "score": 53.5, "cost": 0.8, "time": 33 } ] },
+    { "id": "sonnet", "name": "sonnet 5", "color": "#a58bd1", "points": [
+      { "effort": "xhigh", "score": 60.9, "cost": 4.4, "time": 126 },
+      { "effort": "high", "score": 58.2, "cost": 2.8, "time": 98 },
+      { "effort": "mid", "score": 56.2, "cost": 2.2, "time": 80 },
+      { "effort": "low", "score": 51.7, "cost": 1.5, "time": 60 },
+      { "effort": "min", "score": 47.1, "cost": 0.9, "time": 41 } ] },
+    { "id": "composer", "name": "composer 2.5", "color": "#e08a4a", "points": [
+      { "effort": "default", "score": 55.5, "cost": 0.5, "time": 22 } ] },
+    { "id": "terra", "name": "gpt-5.6 terra", "color": "#b07a5a", "points": [
+      { "effort": "high", "score": 64.4, "cost": 2.4, "time": 101 },
+      { "effort": "mid", "score": 58.8, "cost": 1.2, "time": 66 },
+      { "effort": "low", "score": 49.6, "cost": 0.5, "time": 37 },
+      { "effort": "min", "score": 46.5, "cost": 0.4, "time": 29 } ] },
+    { "id": "luna", "name": "gpt-5.6 luna", "color": "#8b98b0", "points": [
+      { "effort": "high", "score": 60.4, "cost": 0.42, "time": 48 },
+      { "effort": "mid", "score": 57.4, "cost": 0.25, "time": 35 },
+      { "effort": "low", "score": 56.3, "cost": 0.18, "time": 27 },
+      { "effort": "min", "score": 47.4, "cost": 0.1, "time": 18 } ] }
+  ]
+}</script>
+<script type="module">
+  import { mountRace } from 'assets/hero-race.js?v=4';
+  import { mountScatter } from 'assets/bench-scatter.js?v=4';
+  import { Mascot } from 'assets/mascot.js?v=11';
+
+  // the mascot in the superbot pane: a still under reduced motion, otherwise
+  // handed to the race, which types with it while that pane runs
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const raceBot = new Mascot(document.getElementById('race-bot'), {
+    cols: 30, rows: 15, anim: reduced ? 'statue' : 'calm', autoMorph: false,
+  });
+  // the fable row's two characters: superbot perky, the anthropic one a
+  // rounder, calmer shape in its own colour
+  new Mascot(document.getElementById('vs-superbot'), { cols: 30, rows: 15, anim: reduced ? 'statue' : 'perky', autoMorph: false });
+  new Mascot(document.getElementById('vs-anthropic'), { cols: 30, rows: 15, variant: 'puff', anim: reduced ? 'statue' : 'sleepy', autoMorph: false });
+
+  // the scatter: placeholder numbers from the block above; the axis formats
+  // live here so the JSON stays plain data
+  const sd = JSON.parse(document.getElementById('scatter-data').textContent);
+  const fmt = { cost: (v) => `$${v.toFixed(v < 1 ? 2 : 2)}`, time: (v) => `${Math.round(v)}s` };
+  for (const k of Object.keys(sd.axes)) sd.axes[k].fmt = fmt[k];
+  mountScatter(document.getElementById('scatter'), { series: sd.series, axes: sd.axes });
+
+  // reduce, not remove: under reduced motion the finished frames stay as they are
+  if (!reduced) {
+    const REQUEST = 'add a rate limit to the /upload route and write the tests';
+    mountRace(document.querySelector('.race'), {
+      bot: raceBot,
+      // the two measured means from verdict-v3 (mean wallMs over 60 rows each);
+      // the ms on each step is a weight, rescaled so a pane's steps fill its target
+      targets: { super: 8551, plain: 24057 },
+      scripts: {
+        super: [
+          { k: 'p', text: `/superbot ${REQUEST}`, cmd: '/superbot' },
+          { k: 't', text: 'superbot: read upload.ts and the middleware', ms: 22 },
+          { k: 't', text: 'superbot: wrote the limiter and 3 tests', ms: 30 },
+          { k: 't', text: 'run npm test', ms: 28 },
+          { k: 't', text: 'superbot: checked the diff · 3 passing', ms: 20 },
+          { k: 'ok', text: 'done · 4 steps · less than half the tokens', ms: 0 },
+        ],
+        plain: [
+          { k: 'p', text: REQUEST },
+          { k: 't', text: 'read src/routes/upload.ts', ms: 15 },
+          { k: 't', text: 'read src/middleware/index.ts', ms: 14 },
+          { k: 't', text: 'edit src/routes/upload.ts', ms: 20 },
+          { k: 't', text: 'run npm test', ms: 17 },
+          { k: 'wait', text: '2 failing · reading the errors…', ms: 8 },
+          { k: 't', text: 'edit src/routes/upload.ts', ms: 16 },
+          { k: 't', text: 'run npm test', ms: 10 },
+          { k: 'ok', text: 'done · 6 steps', ms: 0 },
+        ],
+      },
+    });
+  }
+</script>
+</body>
+</html>

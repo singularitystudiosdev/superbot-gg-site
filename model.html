@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>the model · superbot.gg</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="assets/site.css?v=3"/>
+<link rel="stylesheet" href="assets/bench.css?v=2"/>
+<link rel="stylesheet" href="assets/model.css?v=1"/>
+<meta name="description" content="what superbot the model is: one model id, an agent loop that runs it, and a ledger of every claim about it with its source or the slot where a source will go."/>
+<meta property="og:title" content="the model · superbot.gg"/>
+<meta property="og:description" content="superbot as a model: what runs when you talk to it, and every claim about it with a source or a slot."/>
+<meta property="og:image" content="https://superbot.ggassets/og.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header">
+    <div class="sb-header-in">
+      <a class="sb-word" href="index.html">superbot<span class="gg">.gg</span></a>
+      <nav class="sb-nav" aria-label="site">
+        <a href="docs.html">docs</a>
+        <a href="model.html" aria-current="page">model</a>
+        <a href="benchmarks.html">benchmarks</a>
+
+        <a href="index.html" class="pill">log in</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="bench model" id="main" tabindex="-1">
+    <div class="crumb sb-reveal" style="--i:0"><a href="index.html">superbot<span class="gg">.gg</span></a> / model</div>
+    <div class="eyebrow sb-reveal" style="--i:1">superbot, the model</div>
+    <h1 class="sb-reveal" style="--i:1">one name to talk to. a loop that does the work. <span class="pill">model id: superbot</span></h1>
+    <p class="lede sb-reveal" style="--i:2">
+      <b>when you pick "superbot" in any app, one thing answers: superbot's agent loop, running the best model it has for the job.</b>
+      today that is a self-hosted GLM-5.3-Flash by default, with a claude fallback, or your own subscription when you connect one. the loop is what makes it finish in fewer steps with fewer tokens. the ledger below says exactly what is measured, what ships, and what is still a plan.
+    </p>
+
+    <div class="strip sb-reveal" style="--i:3">
+      <div class="cell"><b>the loop</b><p>an agent loop with tools (web search, fetch, papers, repos, your MCP servers) that runs every request the same way whatever model name it arrived with. measured against the claude agent sdk on the same model: <a href="benchmarks.html">more tasks finished, fewer steps, a third of the tokens</a>.</p></div>
+      <div class="cell"><b>the models under it</b><p>default <code>GLM-5.3-Flash</code>, self-hosted. if that box is down, <code>claude-sonnet-5</code> takes the turn. connect your own claude, chatgpt or grok and it runs on the subscription you already pay for.</p></div>
+      <div class="cell"><b>where you reach it</b><p>one MCP endpoint, installed into every AI app on your machine by one line. talk to it in the chat, the phone app, or from inside any coding agent as <code>/superbot</code>.</p></div>
+    </div>
+
+    <section class="claims sb-reveal" style="--i:4" aria-label="the claims ledger">
+      <h2>the claims, with what backs them</h2>
+      <p>every claim about the model gets the same row: the claim, what would prove it, and its status today. a dashed pill is a slot: we intend to make it true and we are not saying it yet.</p>
+
+      <div class="claim" data-status="measured">
+        <div class="what">finishes more tasks in fewer steps with fewer tokens<small>the loop against the claude agent sdk, same model</small></div>
+        <div class="ev"><b>measured.</b> 93.3% vs 85.0% tasks finished, 4.6 vs 6.0 steps, 508 vs 1,210 output tokens on <code>claude-haiku-4-5</code>, 60 paired runs. <a href="benchmarks.html">the figures</a>, wall time included.</div>
+        <span class="st">measured · 2026-09-01</span>
+      </div>
+
+      <div class="claim" data-status="shipped">
+        <div class="what">learns what it lacks<small>a missing tool becomes a new one</small></div>
+        <div class="ev"><b>shipped, human in the loop.</b> a request nothing can serve is logged as a miss, a worker drafts an adapter for it, and a person promotes the draft after its load check passes. 33 adapters live today, all hand-promoted; the automatic drafts have not yet produced a promoted one.</div>
+        <span class="st">shipped · gated</span>
+      </div>
+
+      <div class="claim" data-status="partly">
+        <div class="what">runs tools in parallel, hands work to helpers<small>"native agent swarms"</small></div>
+        <div class="ev"><b>partly.</b> tool calls in one step run in parallel, a research scout runs alongside the main loop, and batch requests fan out. the loop's own subagent tool (a child loop per named helper) exists upstream and is not switched on in superbot yet.</div>
+        <span class="st">partly · subagents off</span>
+      </div>
+
+      <div class="claim" data-status="shipped">
+        <div class="what">answers with today's web, not last year's<small>"a constantly updated dataset"</small></div>
+        <div class="ev"><b>shipped, as live tools rather than training.</b> the loop searches the web, fetches pages, reads papers and repos on every request that needs it, and stamps what it learned with the date it was retrieved. no custom training corpus exists.</div>
+        <span class="st">shipped · live retrieval</span>
+      </div>
+
+      <div class="claim" data-status="slot">
+        <div class="what">cheaper and faster than frontier models at equal quality<small>fable 5, fable 5.1 and the rest</small></div>
+        <div class="ev"><b>no ledger yet.</b> what would back it: the same task set run through superbot and through each frontier model, with quality, wall-clock and cost per task, published with its raw rows. the only cross-model run today is a prompt A/B on fable 5.1 inside the loop, not superbot against fable.</div>
+        <span class="st">slot</span>
+      </div>
+
+      <div class="claim" data-status="slot">
+        <div class="what">fine-tuned for no-nonsense agentic work<small>"a custom rust harness"</small></div>
+        <div class="ev"><b>no fine-tune exists.</b> the behaviour comes from a fixed system prompt, a guard that fences untrusted input, a read-only tool policy, and the loop itself, which is written in typescript. if a fine-tuned checkpoint ships, this row gets its eval.</div>
+        <span class="st">slot</span>
+      </div>
+
+      <div class="claim" data-status="slot">
+        <div class="what">works on a task for as long as it takes, no hand-holding<small>unbounded runs</small></div>
+        <div class="ev"><b>capped today.</b> a hosted turn runs up to six steps and comes back as a miss rather than spinning; a research scout gets 150 seconds beside it. lifting the cap is a product decision with a cost meter behind it, not a copy change.</div>
+        <span class="st">slot · capped at 6 steps</span>
+      </div>
+    </section>
+
+    <p class="foot sb-reveal" style="--i:5">
+      <b>why the ledger.</b> a model page is the easiest place on a site to say more than you can show. every row above points at a file in the superbot repo or at the <a href="benchmarks.html">benchmarks</a>; a row without one says so in its own pill. when a slot fills, the pill turns green and the number appears.
+    </p>
+  </main>
+
+  <footer class="sb-footer">
+    <div class="sb-footer-in">
+      <span class="creed">always learning, always evolving.</span>
+      <nav class="links" aria-label="footer">
+        <a href="index.html">home</a>
+        <a href="docs.html">quickstart</a>
+        <a href="benchmarks.html">benchmarks</a>
+        <a href="https://ezolabs.net">created by EZO Labs Inc</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>quickstart · superbot.gg</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="assets/site.css?v=3"/>
+<meta name="description" content="superbot quickstart: one line puts the resident agent on this machine. it wires every AI client through your own subscriptions and keeps working for them 24/7."/>
+<style>
+  /* Two columns from 880px: a sticky step rail on the left, the content
+     column on the right. Below that the rail becomes a sticky strip under
+     the header. Progress is real: each step closes on the event that means
+     it happened (a copy, the live probe, a prompt copied), never on a click
+     of the rail itself. */
+  .wrap { max-width: var(--container); margin: 0 auto; padding: var(--sp-10) var(--sp-6) 0; display: grid; grid-template-columns: 200px minmax(0, var(--content)); gap: var(--sp-12); justify-content: center; }
+  .crumb { color: var(--muted); font-size: var(--fs-xs); line-height: var(--lh-xs); margin-bottom: var(--sp-4); }
+  .crumb a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; border-radius: var(--r-sm); }
+  .crumb a:hover { color: var(--fg); }
+  .crumb .gg { color: var(--accent); }
+  h1 { font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.25rem); line-height: 1.15; margin-bottom: var(--sp-3); }
+  .sub { color: var(--muted); max-width: 560px; margin-bottom: var(--sp-10); }
+
+  /* step rail */
+  .rail { position: sticky; top: calc(var(--nav-h) + var(--sp-8)); align-self: start; }
+  .rail .lab { font-size: var(--fs-xs); line-height: var(--lh-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-3); }
+  .rail ol { list-style: none; padding: 0; margin: 0; display: grid; }
+  .rail li { position: relative; }
+  .rail a {
+    display: grid; grid-template-columns: 24px 1fr; gap: var(--sp-3); align-items: center;
+    min-height: 40px; padding: 0 var(--sp-2); margin-left: calc(-1 * var(--sp-2));
+    color: var(--muted); text-decoration: none; font-size: var(--fs-sm); border-radius: var(--r-md);
+    transition: color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std);
+  }
+  .rail a:hover { color: var(--fg); background: var(--raised); }
+  .rail .dot {
+    width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
+    display: grid; place-items: center; font-size: var(--fs-xs); color: var(--muted);
+    transition: background-color var(--dur-3) var(--ease-std), border-color var(--dur-3) var(--ease-std), color var(--dur-3) var(--ease-std), transform var(--dur-3) var(--ease-out);
+  }
+  /* the connector runs dot-centre to dot-centre, behind the dots */
+  .rail li + li::before { content: ''; position: absolute; left: 11px; top: -8px; height: 16px; width: 1px; background: var(--line); }
+  .rail li.done .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .rail li.done + li::before { background: var(--accent); }
+  .rail li.now a { color: var(--fg); }
+  .rail li.now .dot { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .rail li.done .dot { transform: scale(1.05); }
+  .rail .meta { margin-top: var(--sp-4); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--muted); }
+  .rail .meta button { background: none; border: 0; padding: 0; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; min-height: 24px; }
+  .rail .meta button:hover { color: var(--fg); }
+
+  /* steps */
+  .step { scroll-margin-top: calc(var(--nav-h) + var(--sp-6)); padding-bottom: var(--sp-10); }
+  .step + .step { border-top: 1px solid var(--line); padding-top: var(--sp-10); }
+  .step h2 { font-size: var(--fs-lg); line-height: var(--lh-lg); display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); letter-spacing: 0; }
+  .step h2 .n {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
+    display: grid; place-items: center; font-size: var(--fs-xs); color: var(--accent); flex: none;
+    transition: background-color var(--dur-3) var(--ease-std), color var(--dur-3) var(--ease-std), border-color var(--dur-3) var(--ease-std);
+  }
+  .step.done h2 .n { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .step p { max-width: var(--measure); margin-bottom: var(--sp-3); }
+  .step p.mut { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  #oneliner { margin: var(--sp-4) 0 var(--sp-4); }
+
+  /* verify: the live readout */
+  .probe { margin-top: var(--sp-4); padding: var(--sp-4); display: grid; gap: var(--sp-3); }
+  .probe .st { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .probe .led { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; transition: background-color var(--dur-4) var(--ease-std), box-shadow var(--dur-4) var(--ease-std); }
+  .probe.on .led { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .probe.off .led { background: var(--danger); }
+  .probe.wait .led { animation: pulse 1.2s var(--ease-std) infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .probe.wait .led { animation: none; opacity: 0.6; } }
+  .probe .st b { font-weight: 500; }
+  .probe .st .mut { color: var(--muted); }
+  .probe .row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+  .probe .ask { display: inline-flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
+  .probe .ask code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); padding: 6px 10px; }
+
+  /* try it: prompts as copy targets */
+  .prompts { display: grid; gap: var(--sp-2); margin-top: var(--sp-4); }
+  .prompts button {
+    text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md);
+    color: var(--fg); font-size: var(--fs-sm); line-height: var(--lh-sm); padding: var(--sp-3) var(--sp-4); cursor: pointer;
+    display: grid; grid-template-columns: 1.2em 1fr auto; gap: var(--sp-2); align-items: center; min-height: 44px;
+    transition: border-color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std), color var(--dur-2) var(--ease-std);
+  }
+  .prompts button::before { content: '▸'; color: var(--accent); }
+  .prompts button::after { content: 'copy'; color: var(--muted); font-size: var(--fs-xs); }
+  .prompts button:hover { border-color: var(--accent); background: var(--raised); }
+  .prompts button.copied { border-color: var(--accent); color: var(--accent); }
+  .prompts button.copied::after { content: 'copied'; color: var(--accent); }
+
+  /* per-client grid */
+  .clients { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-2); margin-top: var(--sp-3); }
+  .clients a {
+    display: flex; align-items: center; min-height: 40px; padding: 0 var(--sp-3);
+    border: 1px solid var(--line); border-radius: var(--r-md); background: var(--card);
+    color: var(--fg); text-decoration: none; font-size: var(--fs-sm);
+    transition: border-color var(--dur-2) var(--ease-std), background-color var(--dur-2) var(--ease-std);
+  }
+  .clients a:hover { border-color: var(--accent); background: var(--raised); }
+  .clients a span { color: var(--muted); font-size: var(--fs-xs); margin-left: auto; padding-left: var(--sp-2); }
+
+  details { margin-top: var(--sp-6); }
+  summary { color: var(--muted); font-size: var(--fs-sm); cursor: pointer; list-style: none; user-select: none; display: inline-flex; align-items: center; min-height: 32px; border-radius: var(--r-sm); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: '▸'; color: var(--accent); width: 1.2em; display: inline-block; transition: transform var(--dur-3) var(--ease-out); }
+  details[open] summary::before { transform: rotate(90deg); }
+  summary:hover { color: var(--fg); }
+  .more { margin-top: var(--sp-3); }
+  .more p { color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+  .more b { color: var(--fg); font-weight: 500; }
+
+  @media (max-width: 879px) {
+    .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 0; }
+    .rail { position: sticky; top: var(--nav-h); z-index: 5; margin: 0 calc(-1 * var(--sp-6)); padding: var(--sp-2) var(--sp-6);
+            background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line); margin-bottom: var(--sp-6); }
+    .rail .lab, .rail .meta { display: none; }
+    .rail ol { grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--sp-1); }
+    .rail li + li::before { display: none; }
+    .rail a { grid-template-columns: 24px 1fr; min-height: 36px; margin: 0; padding: 0 var(--sp-1); font-size: var(--fs-xs); }
+    .rail a .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+  @media (max-width: 480px) {
+    .wrap { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+    .rail { margin: 0 calc(-1 * var(--sp-4)); padding: var(--sp-2) var(--sp-4); }
+    .rail a { grid-template-columns: 24px; }
+    .rail a .t { display: none; }
+    .rail ol { justify-content: center; grid-auto-columns: max-content; gap: var(--sp-4); }
+  }
+</style>
+</head>
+<body>
+  <a class="sb-skip" href="#main">skip to content</a>
+  <header class="sb-header">
+    <div class="sb-header-in">
+      <a class="sb-word" href="index.html">superbot<span class="gg">.gg</span></a>
+      <nav class="sb-nav" aria-label="site">
+        <a href="benchmarks.html">benchmarks</a>
+        <a href="docs.html" aria-current="page">docs</a>
+
+        <a href="index.html" class="pill">log in</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <aside class="rail" aria-label="progress">
+      <div class="lab">quickstart</div>
+      <ol id="rail">
+        <li data-step="install"><a href="#install"><span class="dot">1</span><span class="t">install</span></a></li>
+        <li data-step="verify"><a href="#verify"><span class="dot">2</span><span class="t">verify</span></a></li>
+        <li data-step="try"><a href="#try"><span class="dot">3</span><span class="t">try it</span></a></li>
+        <li data-step="keep"><a href="#keep"><span class="dot">4</span><span class="t">keep it current</span></a></li>
+      </ol>
+      <div class="meta"><span id="railmeta">step 1 of 4</span> · <button type="button" id="railreset">reset</button></div>
+    </aside>
+
+    <main id="main" tabindex="-1">
+      <div class="crumb sb-reveal" style="--i:0"><a href="index.html">superbot<span class="gg">.gg</span></a> / docs</div>
+      <h1 class="sb-reveal" style="--i:1">quickstart</h1>
+      <p class="sub sb-reveal" style="--i:2">one line puts superbot on this machine full time. it wires every AI client through your own subscriptions, then keeps working 24/7: it fixes the slow bits, the repeats and the boring errors. pick an arm below, the terminal line or the paste.</p>
+
+      <section class="step sb-reveal" id="install" data-step="install" style="--i:3">
+        <h2><span class="n">1</span>install</h2>
+        <div id="oneliner"></div>
+        <p class="mut">no terminal? paste this to any coding agent and let it take it from there:
+          <code>install the Superbot MCP server globally: <span id="mcp-here">https://superbot.gg/mcp</span></code></p>
+      </section>
+
+      <section class="step" id="verify" data-step="verify">
+        <h2><span class="n">2</span>verify</h2>
+        <p>restart your AI client, then ask it what superbot tools it has. you should see one tool, <code>superbot</code>. running it may ask you to pair once.</p>
+        <div class="probe sb-card wait" id="probe" aria-live="polite">
+          <div class="st"><span class="led" aria-hidden="true"></span><span id="probetext">checking the server from this browser…</span></div>
+          <div class="row">
+            <span class="ask"><code id="askline">what superbot tools do you have?</code><button class="sb-btn ghost sm" type="button" id="askcopy">copy the question</button></span>
+            <button class="sb-btn ghost sm" type="button" id="probeagain">check again</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="try" data-step="try">
+        <h2><span class="n">3</span>try it</h2>
+        <p class="mut">paste a prompt, get an answer. ask for something it can't do yet, and it learns it.</p>
+        <div class="prompts" id="prompts"></div>
+        <div class="sb-visually-hidden" id="copylive" aria-live="polite"></div>
+      </section>
+
+      <section class="step" id="keep" data-step="keep">
+        <h2><span class="n">4</span>keep it current</h2>
+        <p>re-running the install line is the update. it always pulls the current installer. undo everything with <code>--uninstall</code>.</p>
+
+        <details>
+          <summary>per-client manual setup</summary>
+          <div class="more">
+            <p>the bootstrap writes every client it finds. prefer to wire one by hand? each recipe is a short page.</p>
+            <div class="clients" id="client-links"></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>troubleshooting</summary>
+          <div class="more">
+            <p><b>client doesn't show superbot</b>: restart it. configs are written while the client is closed or reloaded.</p>
+            <p><b>no node on the machine</b>: the install line installs it (brew on mac, winget on windows, official build into ~/.local on linux; no sudo).</p>
+            <p><b>pairing prompt</b>: running a tool may ask you to pair once; that ties this device to your account.</p>
+            <p><b>uninstall</b>: <code id="undo-line">curl -fsSL https://superbot.gg/install/uninstall.sh | sh</code> removes the entry from every client and restores what it changed. windows: <code id="undo-win">powershell -c "irm https://superbot.gg/install/uninstall.ps1 | iex"</code>.</p>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <footer class="sb-footer">
+    <div class="sb-footer-in">
+      <span class="creed">always learning, always evolving.</span>
+      <nav class="links" aria-label="footer">
+        <a href="index.html">home</a>
+        <a href="/llms.txt">setup for every client</a>
+        <a href="/docs.md">this page as markdown</a>
+        <a href="https://ezolabs.net">created by EZO Labs Inc</a>
+      </nav>
+    </div>
+  </footer>
+
+<script type="module">
+  import { mountInstallSnippet } from 'assets/install-snippet.js?v=13';
+  mountInstallSnippet(document.getElementById('oneliner'));
+  // the origin is host-derived server-side ({{MCP_URL}} in the no-JS twin);
+  // here it is just location.origin
+  document.getElementById('mcp-here').textContent = `${location.origin}/mcp`;
+  document.getElementById('undo-line').textContent = `curl -fsSL ${location.origin}/install/uninstall.sh | sh`;
+  document.getElementById('undo-win').textContent = `powershell -c "irm ${location.origin}/install/uninstall.ps1 | iex"`;
+
+  // ---- copy ladder shared by the prompts and the verify question: async
+  // clipboard, then execCommand, and feedback (plus a step advance) only on a
+  // copy that actually happened — the same ladder as the install widget ----
+  const copy = (text, onDone) => {
+    const live = document.getElementById('copylive');
+    const done = () => {
+      onDone?.();
+      live.textContent = 'copied to clipboard';
+      setTimeout(() => { live.textContent = ''; }, 1500);
+      dispatchEvent(new CustomEvent('superbot:copied', { detail: { source: 'docs' } }));
+    };
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } finally { ta.remove(); }
+      if (ok) done();
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  };
+
+  // ---- step rail: progress is stored per step and advanced by real events ----
+  const ORDER = ['install', 'verify', 'try', 'keep'];
+  const KEY = 'sb:steps';
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };
+  // storage can refuse writes (private mode, quota, disabled); the rail then
+  // lives for this page view only instead of throwing out of every handler
+  const save = (v) => { try { if (v) localStorage.setItem(KEY, JSON.stringify(v)); else localStorage.removeItem(KEY); } catch {} };
+  let done = load();
+  const rail = document.getElementById('rail');
+  const meta = document.getElementById('railmeta');
+  const paint = () => {
+    const now = ORDER.find((s) => !done[s]) ?? null;
+    let n = 0;
+    for (const s of ORDER) {
+      const li = rail.querySelector(`li[data-step="${s}"]`);
+      const sec = document.querySelector(`section[data-step="${s}"]`);
+      li.classList.toggle('done', !!done[s]);
+      li.classList.toggle('now', s === now);
+      sec?.classList.toggle('done', !!done[s]);
+      li.querySelector('.dot').textContent = done[s] ? '✓' : String(ORDER.indexOf(s) + 1);
+      li.querySelector('a').setAttribute('aria-current', s === now ? 'step' : 'false');
+      if (done[s]) n++;
+    }
+    meta.textContent = now ? `step ${ORDER.indexOf(now) + 1} of 4` : `all 4 done`;
+    document.title = (now ? `quickstart · step ${ORDER.indexOf(now) + 1} of 4` : 'quickstart · done') + ' · superbot.gg';
+  };
+  const mark = (s) => { if (done[s]) return; done[s] = true; save(done); paint(); };
+  document.getElementById('railreset').addEventListener('click', () => { done = {}; save(null); paint(); });
+  // install: a copy of any install line, or the VS Code deep link
+  addEventListener('superbot:copied', (e) => {
+    const src = e.detail?.source;
+    if (src === 'oneliner' || src === 'vscode') mark('install');
+  });
+  // keep it current: reading it is the whole step
+  const keep = document.getElementById('keep');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) mark('keep'); }, { threshold: 0.6 }).observe(keep);
+  }
+  paint();
+
+  // ---- verify: three-state readout from a stateless tools/list on /mcp ----
+  const probe = document.getElementById('probe');
+  const ptext = document.getElementById('probetext');
+  let listening = false;
+  const setProbe = (state, html) => { probe.classList.remove('on', 'off', 'wait'); probe.classList.add(state); ptext.innerHTML = html; };
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  // The live tools/list (a browser POST) only passes the /mcp Origin gate on
+  // the production origin — a same-origin GET carries no Origin header, so
+  // every deploy can at least prove the endpoint answers; the manifest adds
+  // the adapter count. Both are real data from this server, never a badge.
+  const runProbe = async () => {
+    setProbe('wait', 'checking the server from this browser…');
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 2500);
+    const host = esc(location.host);
+    try {
+      let tools = null;
+      // dev deploys are plain http and sit outside the allowlist: skip the
+      // POST there rather than log a 403 in every visitor's console
+      if (location.protocol === 'https:') try {
+        const r = await fetch('/mcp', {
+          method: 'POST', signal: ctl.signal,
+          headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+        });
+        if (r.ok) {
+          const raw = await r.text();
+          // streamable http answers as SSE (`data: {...}`) or plain JSON
+          const line = raw.split('\n').find((l) => l.startsWith('data:'));
+          const msg = JSON.parse(line ? line.slice(5) : raw);
+          if (Array.isArray(msg.result?.tools)) tools = msg.result.tools.map((x) => String(x.name));
+        }
+      } catch (err) {
+        if (err?.name === 'AbortError') throw err;
+      }
+      if (!tools) {
+        const r = await fetch('/mcp', { signal: ctl.signal, headers: { accept: 'text/markdown' } });
+        if (!r.ok) throw new Error(`http ${r.status}`);
+        const body = await r.text();
+        if (!/MCP endpoint/i.test(body)) throw new Error('unexpected reply');
+      }
+      let adapters = 0;
+      try { adapters = Number((await (await fetch('/install/clients.json', { signal: ctl.signal })).json()).adapters) || 0; } catch {}
+      if (tools && tools.length === 0) {
+        setProbe('off', `reached <b>${host}/mcp</b>, but it lists no tools yet. <span class="mut">pair first, then check again.</span>`);
+        return;
+      }
+      listening = true;
+      const behind = adapters ? `, ${adapters} adapters behind it` : '';
+      // with a real tools/list the count is data; on the GET path only the
+      // endpoint was proven, and the one-tool surface is this server's
+      // documented contract rather than something this page measured
+      const what = tools
+        ? `lists ${tools.length} tool${tools.length === 1 ? '' : 's'}: ${tools.map((x) => `<code>${esc(x)}</code>`).join(', ')}${behind}`
+        : `answers. its one tool is <code>superbot</code>${behind}`;
+      setProbe('on', `listening. <b>${host}/mcp</b> ${what}. <span class="mut">now restart your AI client and ask it the question below.</span>`);
+    } catch (err) {
+      setProbe('off', `cannot see the server from here (${esc(err?.name === 'AbortError' ? 'timed out' : err?.message ?? err)}). <span class="mut">run the install line, then check again.</span>`);
+    } finally {
+      clearTimeout(t);
+    }
+  };
+  document.getElementById('probeagain').addEventListener('click', runProbe);
+  const askBtn = document.getElementById('askcopy');
+  askBtn.addEventListener('click', () => copy(document.getElementById('askline').textContent, () => {
+    askBtn.textContent = 'copied';
+    setTimeout(() => { askBtn.textContent = 'copy the question'; }, 1500);
+    // the question on its way to a real client, with the origin listening,
+    // is the verify step happening
+    if (listening) mark('verify');
+  }));
+  runProbe();
+
+  // try-it prompts: click to copy — the arm people actually use is "paste
+  // this into the agent you just installed superbot into"
+  const PROMPTS = [
+    'look up the latest paper on X and give me the two-page version',
+    'scrape this page and tell me what changed since last week: <url>',
+    'find who sells <thing> under $50 and rank them',
+    'call <business> and ask if they have <thing> in stock',
+  ];
+  const el = document.getElementById('prompts');
+  for (const p of PROMPTS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const t = document.createElement('span');
+    t.textContent = p;
+    b.appendChild(t);
+    b.addEventListener('click', () => copy(p, () => {
+      b.classList.add('copied');
+      setTimeout(() => b.classList.remove('copied'), 1500);
+      mark('try');
+    }));
+    el.appendChild(b);
+  }
+  // per-client recipes are served as markdown, rendered by the edge
+  const RECIPES = [
+    ['claude code', 'claude.md', 'cli'],
+    ['claude desktop', 'claude-desktop.md', 'app'],
+    ['claude.ai', 'claude-ai.md', 'web'],
+    ['cursor', 'cursor.md', 'editor'],
+    ['vs code', 'vscode.md', 'editor'],
+    ['windsurf', 'windsurf.md', 'editor'],
+    ['zed', 'zed.md', 'editor'],
+    ['cline', 'cline.md', 'ext'],
+    ['continue', 'continue.md', 'ext'],
+    ['codex', 'codex.md', 'cli'],
+    ['gemini cli', 'gemini.md', 'cli'],
+    ['chatgpt', 'chatgpt.md', 'app'],
+    ['no mcp client', 'advise.md', 'http'],
+    ['stdio', 'stdio.md', 'local'],
+  ];
+  const links = document.getElementById('client-links');
+  for (const [label, file, kind] of RECIPES) {
+    const a = document.createElement('a');
+    a.href = `/install/${file}`;
+    a.textContent = label;
+    const k = document.createElement('span');
+    k.textContent = kind;
+    a.appendChild(k);
+    links.appendChild(a);
+  }
+</script>
+</body>
+</html>

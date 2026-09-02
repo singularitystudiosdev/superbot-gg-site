@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 72" width="420" height="72">
+  <defs>
+    <pattern id="ht" width="5" height="4.4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="1.4" width="3.3" height="1.4" rx="0.7" fill="#e8e4d9"/>
+    </pattern>
+  </defs>
+  <!-- mini mark, smol proportions: big ears, small head, huge eye -->
+  <path d="M17 29 Q10 12 24 15 Q27 19 22 30 Z" fill="url(#ht)"/>
+  <path d="M47 29 Q54 12 40 15 Q37 19 42 30 Z" fill="url(#ht)"/>
+  <rect x="13" y="26" width="38" height="29" rx="11" fill="url(#ht)"/>
+  <ellipse cx="25" cy="38.5" rx="4.6" ry="5.4" fill="#0c0d10"/>
+  <rect x="34" y="36.6" width="11" height="3.6" rx="1.8" fill="#0c0d10"/>
+  <path d="M29 46 Q32 49.4 35 46 Z" fill="#0c0d10"/>
+  <!-- wordmark -->
+  <text x="72" y="47" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="34" font-weight="600" fill="#e8e4d9" letter-spacing="-1">superbot<tspan fill="#7cb389">.gg</tspan></text>
+</svg>
